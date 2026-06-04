@@ -1,5 +1,5 @@
 ---
-name: smart-service-ideation.
+name: smart-service-ideation
 description: "High-velocity, extreme-divergence smart service ideation. Leverages systematic Data Escalation, Cross-Pollination Forcing, and Business Model Patterns before consolidating service ideas into high-value technical bundles."
 version: 1.0.0
 author: jocwulf
@@ -34,7 +34,7 @@ Open and scan the `PATTERNS.md` reference file containing all 60 patterns. Selec
 For each of the 15 chosen patterns, force yourself to generate 2-3 highly disruptive digital smart features or service offerings that map your product data to that specific business model definition.
 
 ### Step 4: Technical Co-occurrence Bundling (Convergence)
-Review the entire 100+ raw idea pool. Identify the most robust concepts and group them into **3-4 Core Technical Synergy Bundles**. 
+Review the entire 100+ raw idea pool. Identify the most robust concepts and group them into **3-5 Core Technical Synergy Bundles**. 
 *Rule: Features belong together if they share the same data pipeline, infrastructure, or physical modifications (e.g., they utilize the same sensor telemetry, require the same edge gateway, or share an API backend).*
 
 ### Step 5: Bundle Feasibility
@@ -53,7 +53,7 @@ Save the following outputs in smart-service-ideation-output.md:
 *(Output the rapid-fire concept matrix completely, ensuring Step 3 explicitly notes which pattern from PATTERNS.md was utilized)*
 
 ### 2. Consolidated Technical Synergy Bundles
-*(Present the 3-4 winning clusters compiled from the pool)*
+*(Present the 3-5 winning clusters compiled from the pool)*
 
 **Bundle Name: [e.g., Predictive Asset Health Bundle]**
 * **Selected Synergy Features:**

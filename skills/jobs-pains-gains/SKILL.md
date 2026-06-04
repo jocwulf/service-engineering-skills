@@ -51,7 +51,7 @@ Always use concrete thesholds (Good: “Reports take 2+ hours to compile”) ins
 Label: `P1`, `P2`, ...
 
 #### Customer Gains
-Outcomes and benefits the customer desires — including expected outcomes, desired outcomes, and unexpected delighters. Apply the **Non-Redundant Gains Rule**: gains must not be opposites of pains. They must represent positive value beyond pain removal (e.g., not "less downtime" but "predictable maintenance windows that enable production scheduling"). Remove gains with little added value. Striclty describe outcomes and avoid descriptions of technical service features.
+Outcomes and benefits the customer desires — including expected outcomes, desired outcomes, and unexpected delighters. Apply the **Non-Redundant Gains Rule**: gains must not be opposites of pains. They must represent positive value beyond pain removal (e.g., not "less downtime" but "predictable maintenance windows that enable production scheduling"). Remove gains with little added value. **Strictly describe outcomes (Good: "reduce downtime to 99%") and avoid descriptions of technical service features (Invalid: "predictive maintenance")**.
 
 Label: `G1`, `G2`, ...
 
