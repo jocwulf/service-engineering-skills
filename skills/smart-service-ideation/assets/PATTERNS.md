@@ -1,0 +1,61 @@
+# Reference: St. Gallen Business Model Patterns
+- **Add-on:** Cheap base items cost significantly more once customers include customized extra features.
+- **Affiliation:** Independent partners drive sales for a company in exchange for performance-based commissions.
+- **Aikido:** Companies launch radical value propositions to capture mainstream competitors' dissatisfied clients.
+- **Auction:** Bidders compete against each other to drive up the final transaction price.
+- **Barter:** Businesses swap goods or services directly without any cash changing hands.
+- **Cash Machine:** Upfront customer payments boost corporate liquidity before operational expenses are incurred.
+- **Cross Selling:** Retailers generate new revenue by adding unrelated industry products to existing stores.
+- **Crowdfunding:** Web-based micro-investors fund an unbuilt concept in exchange for early perks.
+- **Crowdsourcing:** Anonymous online contributors solve tasks to win rewards or production prizes.
+- **Customer Loyalty:** Incentive programs build emotional connections to secure predictable future revenue streams.
+- **Digitization:** Turning tangible goods into digital formats drastically speeds up global distribution.
+- **Direct Selling:** Manufacturers skip retail intermediaries to lower prices and own customer relationships.
+- **E-commerce:** Operating exclusively via online web stores eliminates costly physical branch networks.
+- **Experience Selling:** Memorable event-driven shopping environments justify premium prices for everyday merchandise.
+- **Flat Rate:** Flat-fee pricing structures offer unrestricted usage while stabilizing recurring corporate revenue.
+- **Fractional Ownership:** Multiple buyers split the purchase and usage rights of expensive capital assets.
+- **Franchising:** Independent entrepreneurs run local branches utilizing an established brand's corporate identity.
+- **Freemium:** Free entry-level tiers attract mass audiences while premium upgrades fund the operations.
+- **From Push-to-pull:** Decentralized supply chains dynamically adapt operations based on real-time consumer demand.
+- **Guaranteed Availability:** Companies leverage deep operational expertise to promise clients near-zero equipment downtime.
+- **Hidden Revenue:** Third-party advertisers cross-finance free platforms to reach the attracted user base.
+- **Ingredient Branding:** Featuring a highly reputable supplier component elevates the final product's market value.
+- **Integrator:** Controlling almost all value chain steps cuts supplier dependency and lowers costs.
+- **Layer Player:** Niche specialists supply one optimized production step across completely different industries.
+- **Leverage Customer Data:** Harvesting and aggregating user information unlocks monetization through targeted external advertising.
+- **License:** R&D efforts center on monetizing intellectual property rights instead of manufacturing goods.
+- **Lock-in:** High technological or economic switching barriers prevent consumers from leaving an ecosystem.
+- **Long Tail:** Amassing vast catalogs of niche items generates high aggregate profits from small sales.
+- **Make More Of It:** Companies commercialize internal slack resources and specialized expertise to external firms.
+- **Mass Customization:** Modular manufacturing lines deliver individualized products at competitive mass-production prices.
+- **No Frills:** Stripping offerings down to core basics allows hyper-low pricing for budget-conscious buyers.
+- **Open Business Model:** Collaborating across an ecosystem with diverse partners drives collective value creation.
+- **Open Source:** Free source code access encourages public contributions while monetizing support consulting.
+- **Orchestrator:** Businesses outsource non-core manufacturing segments to focus strictly on central corporate competencies.
+- **Pay Per Use:** Customers only pay for the exact volume of services they effectively consume.
+- **Pay What You Want:** Buyers self-determine their prices, driving massive customer acquisition through social norms.
+- **Peer-to-peer:** Online database matchmakers connect private individuals directly for rental or asset sharing.
+- **Performance-based Contracting:** Pricing links directly to real-world operational outcomes rather than physical asset value.
+- **Razor And Blade:** Cheap entry products lock buyers into purchasing high-margin, proprietary consumable refills.
+- **Rent Instead Of Buy:** Temporal leasing options lower client capital requirements while increasing asset utilization.
+- **Revenue Sharing:** Firms split incoming profits with stakeholders to create mutually beneficial ecosystem synergies.
+- **Reverse Engineering:** Deconstructing rival merchandise allows cheaper replication without heavy upfront research investments.
+- **Reverse Innovation:** Streamlined products designed for emerging markets get successfully imported into wealthy nations.
+- **Robin Hood:** Wealthier clients pay premium rates to subsidize low-cost access for disadvantaged groups.
+- **Self-service:** Outsourcing operational labor to consumers cuts corporate overheads in exchange for discounts.
+- **Shop-in-shop:** Brands set up miniature boutique spaces inside larger, high-traffic host retailers.
+- **Solution Provider:** Full-service single points of contact handle complete client requirements in specific domains.
+- **Subscription:** Steady recurring revenue is generated by billing fixed monthly or annual access fees.
+- **Supermarket:** Bundling a massive selection of low-priced goods under one roof attracts high volume.
+- **Target The Poor:** Ultra-affordable items tap into massive sales volumes at the economic pyramid's base.
+- **Trash-to-cash:** Reclaiming discarded waste materials virtually eliminates resource costs for new product lines.
+- **Two-sided Market:** Platforms create value by connecting and facilitating transactions between interdependent consumer groups.
+- **Ultimate Luxury:** Elite quality standards and extreme exclusivity unlock exceptionally high profit margins.
+- **User Designed:** Online platforms supply creation toolkits so consumers can design and sell custom merchandise.
+- **Whitelabel:** Generic manufacturers let multiple different vendors rebrand identical goods as their own.
+- **Sensor As A Service:** Real-time connected hardware feeds data analysis engines to unlock new service revenue.
+- **Virtualization:** Moving physical workflows into digital environments grants users flexible, location-independent interaction.
+- **Object Self-service:** Automated IoT hardware detects low inventory to trigger replenishment orders independently.
+- **Object As Point-of-sale:** Moving purchasing mechanisms directly onto consumer hardware reduces price sensitivity.
+- **Prosumer:** Blending consumption with production boosts the perceived value of the final creation.
