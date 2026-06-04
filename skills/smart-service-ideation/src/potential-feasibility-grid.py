@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch
+from matplotlib.lines import Line2D
 import numpy as np
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -99,14 +100,6 @@ QUAD_COLOR_TOP_LEFT     = "#f0c040"   # hidden gem
 QUAD_COLOR_BOTTOM_RIGHT = "#a8d8a8"   # quick win
 QUAD_COLOR_TOP_RIGHT    = "#1b4f8a"   # prime zone
 QUAD_ALPHA              = 0.18
-
-# Callout annotation offsets per bundle id: (dx, dy)
-ANNOTATION_OFFSETS = {
-    "A": (-0.70,  2_800),
-    "B": ( 0.28,  3_000),
-    "C": (-0.78, -3_400),
-    "D": ( 0.28, -3_500),
-}
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STYLE — tweak appearance without touching rendering logic
@@ -209,31 +202,6 @@ for b in BUNDLES:
             ha="center", va="center", fontsize=6.5,
             color="white", alpha=0.90, fontfamily=FONT_MAIN, zorder=5)
 
-# ── Annotation callouts ───────────────────────────────────────────────────────
-
-for b in BUNDLES:
-    x         = b["feasibility"] + b["x_offset"]
-    y         = b["value"]
-    dx, dy    = ANNOTATION_OFFSETS[b["id"]]
-
-    ax.annotate(
-        f"{b['label']}\n"
-        f"Score: {b['feasibility']}/5  |  {b['level']} Feasibility\n"
-        f"Value: €{b['value']:,}/yr  |  Pains: {b['pains']}",
-        xy=(x, y),
-        xytext=(x + dx, y + dy),
-        fontsize=7.6,
-        fontfamily=FONT_MAIN,
-        color="#1a1a1a",
-        ha="left" if dx >= 0 else "right",
-        va="center",
-        bbox=dict(boxstyle="round,pad=0.35", fc="white",
-                  ec=BUBBLE_COLOR, lw=1.4, alpha=0.93),
-        arrowprops=dict(arrowstyle="-|>", color=BUBBLE_COLOR, lw=1.3,
-                        connectionstyle="arc3,rad=0.15"),
-        zorder=6,
-    )
-
 # ── Axes formatting ───────────────────────────────────────────────────────────
 
 ax.set_xlim(X_MIN, X_MAX)
@@ -275,7 +243,37 @@ fig.text(0.5, 0.935, SUBTITLE,
          ha="center", va="top", fontsize=8.6,
          fontfamily=FONT_MAIN, color="#555555")
 
-plt.tight_layout(rect=[0, 0, 1, 0.93])
+# ── Bundle legend (bottom) ────────────────────────────────────────────────────
+
+fig.add_artist(Line2D([0.01, 0.99], [0.158, 0.158],
+                      transform=fig.transFigure,
+                      color="#cccccc", lw=0.8, alpha=0.7))
+
+for i, b in enumerate(BUNDLES):
+    x0 = 0.01 + i * 0.245      # left edge of this column
+
+    fig.text(x0 + 0.022, 0.095, b["id"],
+             ha="center", va="center",
+             fontsize=10, fontweight="bold",
+             color="white", fontfamily=FONT_MAIN,
+             bbox=dict(boxstyle="circle,pad=0.30",
+                       fc=BUBBLE_COLOR, ec="none", alpha=0.90))
+
+    tx = x0 + 0.050             # text left edge
+
+    fig.text(tx, 0.123, b["label"].replace("\n", " "),
+             ha="left", va="center",
+             fontsize=8.0, fontweight="bold",
+             fontfamily=FONT_MAIN, color="#1a1a1a")
+
+    fig.text(tx, 0.072,
+             f"Score {b['feasibility']}/5  ·  {b['level']} Feasibility"
+             f"  ·  €{b['value']:,}/yr  ·  Pains: {b['pains']}",
+             ha="left", va="center",
+             fontsize=7.0,
+             fontfamily=FONT_MAIN, color="#555555")
+
+plt.tight_layout(rect=[0, 0.17, 1, 0.93])
 
 # ── Export ────────────────────────────────────────────────────────────────────
 

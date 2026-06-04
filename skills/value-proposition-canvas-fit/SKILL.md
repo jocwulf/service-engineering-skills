@@ -1,5 +1,5 @@
 ---
-name: vpcanvas
+name: value-proposition-canvas-fit
 description: "Create one Value Proposition Canvas per customer segment — with end-to-end Mermaid flows (Feature → PR/GC → Pain/Gain → Job) styled in dark blue/black — from jobs-pains-gains profiles and an envisioned feature set."
 license: MIT
 metadata:
@@ -7,7 +7,7 @@ metadata:
   version: 2.0.0
 ---
 
-# vpcanvas — Multi-Segment Value Proposition Canvas Designer
+# value-proposition-canvas-fit — Multi-Segment Value Proposition Canvas Designer
 
 > Map envisioned features to customer needs across all relevant segments, producing one fully visualized Value Proposition Canvas per segment with strict end-to-end Mermaid flows.
 
