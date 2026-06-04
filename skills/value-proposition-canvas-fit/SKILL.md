@@ -26,7 +26,7 @@ Ask for any missing inputs before proceeding:
 
 ### Step 1: Input Consolidation
 
-List all segments from `Segment_Profiles` and all features from `Feature_Set`. Confirm with the user if any segment or feature is ambiguous before proceeding.
+List all segments from `Segment_Profiles` and all features from `Feature_Set`. Ask the user whether any segments or features should be excluded. Do NOT proceed without user approval.
 
 ### Step 2: Per-Segment Canvas Mapping
 
@@ -42,9 +42,9 @@ Transcribe the segment's jobs, pains, and gains using IDs from the source profil
 #### 2b. Value Map (Left Side)
 
 For each feature in `Feature_Set`, assess relevance to this segment and assign:
-- **PS (Products & Services):** Features included in this canvas, labeled `PS1`, `PS2`, ...
-- **PR (Pain Relievers):** One PR per PS→Pain connection, labeled `PR1`, `PR2`, ...
-- **GC (Gain Creators):** One GC per PS→Gain connection, labeled `GC1`, `GC2`, ...
+- **PS (Products & Services):** Features MUST be noun-based (Good: “Analytics dashboard”) and MUST NOT describe effects or outcomes (Invalid: “Time-saving dashboard”). Labels: `PS1`, `PS2`, ...
+- **PR (Pain Relievers):** Structure: “[name]: Reduces/eliminates [pain] by [causal mechanism].” At least one PR per PS→Pain connection. Labels: `PR1`, `PR2`, ...
+- **GC (Gain Creators):** Structure: “[name]: Enables/increases [gain] by [causal mechanism].” At least one GC per PS→Gain connection. Labels: `GC1`, `GC2`, ...
 
 Not every feature needs to appear in every segment canvas — only include features with a meaningful connection.
 
@@ -94,7 +94,7 @@ style Jobs fill:none,stroke:#000000,stroke-width:1px;
 
 ## 5. Output Format
 
-Save all canvases to `value-proposition-canvases-output.md`. Each segment gets its own titled section.
+Save all canvases to `value-proposition-canvases-output.md`. Each segment gets its own titled section. Use value_proposition_canvas.py to save each mermaid diagram as a PNG file named `vpcanvas_[segment_name].png` for easy reference.
 
 ---
 

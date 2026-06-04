@@ -35,11 +35,11 @@ Output a segment list with a one-sentence rationale for why each is distinct to 
 For each identified segment, extract and label the following. Use evidence from the input data where possible; infer where necessary and mark inferences with *(inferred)*.
 
 #### Customer Jobs
-Tasks the customer is trying to accomplish, obligations they must fulfill, or outcomes they are pursuing. Classify each job:
+Tasks the customer is trying to accomplish, obligations they must fulfill, or outcomes they are pursuing. Action-only, no evaluation (good: "create reports", invalid: "create reports quickly"). Classify each job:
 - **Functional** (practical task or outcome)
 - **Social** (how they want to be perceived)
 - **Emotional** (how they want to feel)
-Formulate as follow: "[job title]: When [situation], I want to [job] so I can [desired outcome]."
+Formulate as follows: "[job title]: When [situation], I want to [job] so I can [desired outcome]."
 Label: `CJ1`, `CJ2`, ...
 
 #### Customer Pains
@@ -47,7 +47,7 @@ Frustrations, risks, obstacles, and undesired outcomes the customer experiences 
 - Undesired outcomes (e.g. bad performance, frustration)
 - Obstacles (e.g. time, cost, skill barriers)
 - Risks (what could go wrong)
-
+Always use concrete thesholds (Good: “Reports take 2+ hours to compile”) instead of being value (Invalid: “Reports are inefficient”). 
 Label: `P1`, `P2`, ...
 
 #### Customer Gains
