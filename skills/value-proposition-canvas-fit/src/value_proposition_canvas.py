@@ -1,28 +1,13 @@
 #!/usr/bin/env python3
-"""Convert a Mermaid chart to an image using the local Mermaid CLI (mmdc).
-
-Requires Node.js and @mermaid-js/mermaid-cli:
-    npm install -g @mermaid-js/mermaid-cli
-"""
+"""Convert a Mermaid chart to an image via the mermaid.ink API."""
 
 import argparse
+import base64
+import json
 import re
-import shutil
-import subprocess
 import sys
-import tempfile
+import urllib.request
 from pathlib import Path
-
-
-def find_mmdc() -> str:
-    """Return the mmdc executable path, or exit with an install hint."""
-    cmd = shutil.which("mmdc") or shutil.which("mmdc.cmd")
-    if cmd:
-        return cmd
-    sys.exit(
-        "error: mmdc not found. Install the Mermaid CLI with:\n"
-        "    npm install -g @mermaid-js/mermaid-cli"
-    )
 
 
 def extract_mermaid(content: str, index: int = 0) -> str:
@@ -55,26 +40,27 @@ def slugify(name: str) -> str:
     return re.sub(r"[^a-zA-Z0-9]+", "_", name).strip("_").lower()
 
 
-def render(mmdc: str, mermaid_code: str, output_path: Path, theme: str) -> None:
-    with tempfile.NamedTemporaryFile(suffix=".mmd", mode="w", delete=False) as tmp:
-        tmp.write(mermaid_code)
-        tmp_path = Path(tmp.name)
+def render_via_api(mermaid_code: str, output_path: Path, theme: str) -> None:
+    graph_config = {"code": mermaid_code, "options": {"theme": theme}}
+    base64_string = base64.b64encode(json.dumps(graph_config).encode("utf-8")).decode("utf-8")
 
+    fmt = output_path.suffix.lstrip(".")
+    if fmt == "pdf":
+        fmt = "png"
+        output_path = output_path.with_suffix(".png")
+
+    url = f"https://mermaid.ink/{fmt}/{base64_string}"
+    print("Sending request to mermaid.ink API...")
     try:
-        result = subprocess.run(
-            [mmdc, "-i", str(tmp_path), "-o", str(output_path), "-t", theme, "-b", "transparent"],
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode != 0:
-            sys.exit(f"mmdc failed:\n{result.stderr.strip()}")
-    finally:
-        tmp_path.unlink(missing_ok=True)
+        with urllib.request.urlopen(url) as response:
+            output_path.write_bytes(response.read())
+    except Exception as e:
+        sys.exit(f"API rendering failed: {e}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Render a Mermaid chart to an image using the local mmdc CLI",
+        description="Render a Mermaid chart to an image via mermaid.ink",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -126,8 +112,6 @@ Examples:
     )
     args = parser.parse_args()
 
-    mmdc = find_mmdc()
-
     # Read source
     if args.input == "-":
         content = sys.stdin.read()
@@ -152,7 +136,7 @@ Examples:
         for name, mermaid_code in segments:
             out_path = out_dir / f"vpcanvas_{slugify(name)}.{args.format}"
             print(f"Rendering '{name}' → {out_path}  (theme={args.theme})")
-            render(mmdc, mermaid_code, out_path, args.theme)
+            render_via_api(mermaid_code, out_path, args.theme)
             print(f"  Saved {out_path.stat().st_size:,} bytes")
         return
 
@@ -172,7 +156,7 @@ Examples:
         output_path = Path(f"output.{args.format}")
 
     print(f"Rendering → {output_path}  (theme={args.theme}, format={args.format})")
-    render(mmdc, mermaid_code, output_path, args.theme)
+    render_via_api(mermaid_code, output_path, args.theme)
     print(f"Saved {output_path.stat().st_size:,} bytes to {output_path}")
 
 
