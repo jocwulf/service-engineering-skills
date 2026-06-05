@@ -115,6 +115,7 @@ Define **directed value flows** between roles.
      - Are affected by service provisioning
 
 3. **Bidirectional participation rule**
+   - Each value flow must have at least one sender and one receiver role 
    - Every role must both send and receive value
 
 4. **Causality rule**
