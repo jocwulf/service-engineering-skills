@@ -22,7 +22,7 @@ Prior to undertaking any overall objective or initializing substantive tools, yo
 Deconstruct the user's overarching prompt into discrete, coarse-grained substeps. Present this to the user in a clean, numbered list before running downstream code or file modifications.
 
 ### Step 1.2: Establish the Global or Local Configuration
-Immediately after displaying the substeps, prompt the user to define the interaction mode. The user can choose to apply an interaction mode **globally (for the overall task)** or **locally (for each substep specifically)**. 
+Immediately after displaying the substeps, ask to the user whether they wish a glocal (for the overall task) or local (for each substep specifically) configuration. Then prompt the user so select the interaction mode(s). 
 
 ---
 

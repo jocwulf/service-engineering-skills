@@ -87,8 +87,7 @@ Rules for roles:
 - Each role must:
   - Provide at least one value flow
   - Receive at least one value flow
-- Roles must be functional (e.g., "Payment Processor", "Service Operator")
-- Avoid vague roles (e.g., "System")
+- Roles must represent job roles humans execute (good: "Field Technician", "Service Agent") and not technical components (bad: "Database", "API") or vague entities (bad: "System", "Platform").
 
 ---
 

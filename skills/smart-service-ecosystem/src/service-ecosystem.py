@@ -14,7 +14,19 @@ import urllib.request
 from pathlib import Path
 
 
-MERMAID_CHART = ""
+MERMAID_CHART = """
+graph LR
+    subgraph Customer
+        R1[User]
+    end
+
+    subgraph Provider
+        R2[Service Platform]
+    end
+
+    R1 -->|€9.99/month| R2
+    R2 -->|Service access via mobile app| R1
+"""
 
 
 def render_via_api(mermaid_code: str, output_path: Path, theme: str) -> None:
