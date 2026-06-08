@@ -29,7 +29,7 @@ You will use a programmatic node-and-edge notation:
 
 ## Embedded Data Structure Format
 
-When rewriting ./src/service-blueprint.py, your BLUEPRINT_DATA dictionary must look exactly like this:
+When rewriting ./scripts/service-blueprint.py, your BLUEPRINT_DATA dictionary must look exactly like this:
 ```python
 BLUEPRINT_DATA = {
   "title": "Service Blueprint: Example Segment - Example Product",
@@ -99,10 +99,10 @@ BLUEPRINT_DATA = {
 
 1. **Analyze Inputs:** Review the provided Value Proposition Canvas (Jobs, Pains, Gains) and the selected Products & Services.
 2. **Synthesize the Blueprint Matrix:** Map out the 5 standard layers: Physical / Digital Evidence, Customer Actions, Frontstage Actions, Backstage Actions, and Support Processes.
-3. **Rewrite the Python Code:** Open `./src/service-blueprint.py` and locate the `BLUEPRINT_DATA` dictionary at the top of the file. Rewrite the file by replacing that dictionary with your synthesized data. Use the JSON structure shown below. Map out the `connections` precisely.
+3. **Rewrite the Python Code:** Open `./scripts/service-blueprint.py` and locate the `BLUEPRINT_DATA` dictionary at the top of the file. Rewrite the file by replacing that dictionary with your synthesized data. Use the JSON structure shown below. Map out the `connections` precisely.
 4. **Generate Visual Image:** Run the python script to render the SVG image.
    ```bash
-   python3 ./src/service-blueprint.py
+   python3 ./scripts/service-blueprint.py
    ```
 5. **Author the Report**: Create a detailed markdown file named service-blueprint.md. This report must:
 - Describe the blueprint in deep detail phase by phase.
