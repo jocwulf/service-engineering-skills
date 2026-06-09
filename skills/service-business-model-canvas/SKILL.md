@@ -1,4 +1,3 @@
-
 ---
 name: service-business-model-canvas
 description: "Generate a highly structured, segment-specific Business Model Canvas based on Alexander Osterwalder's Business Model Canvas, and generate a PNG visualization of the component relationships."
@@ -6,6 +5,7 @@ version: 1.0.0
 author: Jochen Wulf
 license: MIT
 ---
+
 # business-model-canvas (Advanced Ontology & Visualization Edition)
 
 ## 9 blocks
