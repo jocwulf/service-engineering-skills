@@ -1,14 +1,9 @@
----
-
-### 2. `./src/service-blueprint.py`
-
-```python
 #!/usr/bin/env python3
-import textwrap
-import os
+import textwrap, math
+from PIL import Image, ImageDraw, ImageFont
 
 # ==============================================================================
-# AGENT INSTRUCTION: Rewrite this file and replace the BLUEPRINT_DATA dictionary 
+# AGENT INSTRUCTION: Rewrite this file and replace the BLUEPRINT_DATA dictionary
 # below with your synthesized service blueprint data before executing the script.
 # ==============================================================================
 BLUEPRINT_DATA = {
@@ -18,16 +13,16 @@ BLUEPRINT_DATA = {
     {
       "name": "Physical / Digital Evidence",
       "cells": [
-        [{"id": "e1", "content": "Example artifact"}], # Phase 1
-        [{"content": ""}],                              # Blank spacer (Phase 2)
-        [{"id": "e3", "content": "Another artifact"}]   # Phase 3
+        [{"id": "e1", "content": "Example artifact"}],
+        [{"content": ""}],
+        [{"id": "e3", "content": "Another artifact"}]
       ]
     },
     {
       "name": "Customer Actions",
       "cells": [
         [{"id": "c1", "content": "Example action 1"}],
-        [                                               # Multiple actions in Phase 2
+        [
           {"id": "c2a", "content": "Example action 2A"},
           {"id": "c2b", "content": "Example action 2B"}
         ],
@@ -63,223 +58,239 @@ BLUEPRINT_DATA = {
     }
   ],
   "connections": [
-    {"from": "c1", "to": "f1"},
-    {"from": "f1", "to": "b1"},
-    {"from": "b1", "to": "c2a"},
+    {"from": "c1",  "to": "f1"},
+    {"from": "f1",  "to": "b1"},
+    {"from": "b1",  "to": "c2a"},
     {"from": "c2a", "to": "f2"},
     {"from": "c2a", "to": "c2b"},
     {"from": "c2b", "to": "b2"},
-    {"from": "b2", "to": "s2"},
-    {"from": "s2", "to": "e3"}
+    {"from": "b2",  "to": "s2"},
+    {"from": "s2",  "to": "e3"}
   ]
 }
 # ==============================================================================
 
-def wrap_text(text, width=32):
-    """Wraps text into multiple lines for SVG rendering."""
-    if not text:
-        return []
-    return textwrap.wrap(text, width=width)
+# ── palette ────────────────────────────────────────────────────────────────────
+BG      = (247, 250, 252, 255)
+DARK    = ( 26,  32,  44, 255)
+MED     = ( 45,  55,  72, 255)
+GRAY    = ( 74,  85, 104, 255)
+LGRAY   = (226, 232, 240, 255)
+WHITE   = (255, 255, 255, 255)
+BORDER  = (203, 213, 224, 255)
+RED     = (229,  62,  62, 255)
+PURPLE  = (  0,   0,   0, 200)
+PURP_S  = (  0,   0,   0, 255)
+DIV_LINE= ( 74,  85, 104, 255)
 
-def generate_svg_image(data, output_file):
-    """
-    Renders a 2D grid SVG image, calculates bounding boxes for all cell IDs, 
-    and draws curved paths for connections. Supports multiple items per cell.
-    """
-    col_w = 260
-    label_w = 200
-    header_h = 70
-    margin = 40
-    line_h = 18
-    
-    # Padding settings
-    cell_padding = 15  # Distance from grid line to the block of boxes
-    box_padding = 10   # Internal padding inside the white action box
-    item_spacing = 10  # Space between stacked boxes in the same cell
+
+def wrap_text(text, width=32):
+    return textwrap.wrap(text, width=width) if text else []
+
+
+def load_font(size):
+    for path in [
+        "/System/Library/Fonts/Helvetica.ttc",
+        "/Library/Fonts/Arial.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    ]:
+        try:
+            return ImageFont.truetype(path, size)
+        except Exception:
+            pass
+    return ImageFont.load_default()
+
+
+def bezier_pt(t, p0, p1, p2, p3):
+    u = 1 - t
+    return (
+        u**3*p0[0] + 3*u**2*t*p1[0] + 3*u*t**2*p2[0] + t**3*p3[0],
+        u**3*p0[1] + 3*u**2*t*p1[1] + 3*u*t**2*p2[1] + t**3*p3[1],
+    )
+
+
+def draw_bezier(draw, p0, p1, p2, p3, color, lw):
+    pts = [bezier_pt(i / 60, p0, p1, p2, p3) for i in range(61)]
+    draw.line(pts, fill=color, width=lw)
+
+
+def draw_arrow(draw, tip, prev, color, size):
+    dx, dy = tip[0] - prev[0], tip[1] - prev[1]
+    dist = math.hypot(dx, dy)
+    if dist < 0.1:
+        return
+    ux, uy = dx / dist, dy / dist
+    base = (tip[0] - ux * size, tip[1] - uy * size)
+    draw.polygon([
+        (int(tip[0]),               int(tip[1])),
+        (int(base[0] - uy*size*0.45), int(base[1] + ux*size*0.45)),
+        (int(base[0] + uy*size*0.45), int(base[1] - ux*size*0.45)),
+    ], fill=color)
+
+
+def rrect(draw, x1, y1, x2, y2, r, fill, outline, lw):
+    try:
+        draw.rounded_rectangle([(x1, y1), (x2, y2)], radius=r,
+                                fill=fill, outline=outline, width=lw)
+    except AttributeError:
+        draw.rectangle([(x1, y1), (x2, y2)], fill=fill, outline=outline, width=lw)
+
+
+def generate_png(data, output_file, scale=2):
+    col_w    = 260; label_w  = 200; header_h = 70;  margin   = 40
+    line_h   = 18;  cell_pad = 15;  box_pad  = 10;  item_gap = 10
 
     phases = data.get("phases", [])
-    num_cols = len(phases)
-    rows = data.get("rows", [])
-    connections = data.get("connections", [])
-    
-    cell_coords = {}
-    
-    # Pass 1: Calculate row heights based on multiple items and wrapped text
-    row_heights = []
+    rows   = data.get("rows",   [])
+    conns  = data.get("connections", [])
+    nc     = len(phases)
+
+    # Pass 1 – row heights
+    rh_list = []
     for row in rows:
-        max_cell_h = 0
+        max_h = 0
         for cell in row.get("cells", []):
-            items = cell
-            
-            cell_block_h = 0
-            valid_items = 0
-            
-            for item in items:
-                content = item.get("content", "").strip() if isinstance(item, dict) else str(item).strip()
-                if content:
-                    lines = wrap_text(content)
-                    item_h = (box_padding * 2) + (len(lines) * line_h)
-                    cell_block_h += item_h
-                    valid_items += 1
-                    
-            if valid_items > 1:
-                cell_block_h += item_spacing * (valid_items - 1)
-                
-            max_cell_h = max(max_cell_h, cell_block_h)
-            
-        calculated_height = (cell_padding * 2) + max_cell_h
-        row_heights.append(max(calculated_height, 80)) # Minimum 80px row height
+            bh = n = 0
+            for item in cell:
+                c = (item.get("content", "") if isinstance(item, dict) else str(item)).strip()
+                if c:
+                    bh += box_pad * 2 + len(wrap_text(c)) * line_h
+                    n  += 1
+            if n > 1:
+                bh += item_gap * (n - 1)
+            max_h = max(max_h, bh)
+        rh_list.append(max(cell_pad * 2 + max_h, 80))
 
-    width = label_w + (num_cols * col_w) + (2 * margin)
-    height = header_h + sum(row_heights) + (2 * margin)
-    
-    svg = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
-        '<defs>',
-        '  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">',
-        '    <path d="M 0 0 L 10 5 L 0 10 z" fill="#805ad5" />',
-        '  </marker>',
-        '</defs>',
-        '<style>',
-        '  text { font-family: "Segoe UI", Arial, sans-serif; }',
-        '  .title { font-size: 26px; font-weight: bold; fill: #1a202c; }',
-        '  .header { font-size: 16px; font-weight: bold; fill: #2d3748; }',
-        '  .label { font-size: 14px; font-weight: bold; fill: #4a5568; }',
-        '  .content { font-size: 13px; fill: #2d3748; }',
-        '  .divider-line { stroke: #e53e3e; stroke-width: 2; stroke-dasharray: 6,4; }',
-        '  .divider-text { font-size: 12px; font-weight: bold; fill: #e53e3e; font-style: italic; }',
-        '  .grid-line { stroke: #e2e8f0; stroke-width: 1; }',
-        '  .cell-rect { fill: #ffffff; stroke: #cbd5e0; stroke-width: 1; rx: 6px; }',
-        '  .connection { stroke: #805ad5; stroke-width: 2; fill: none; stroke-dasharray: 4,2; opacity: 0.8; }',
-        '</style>',
-        f'<rect width="{width}" height="{height}" fill="#f7fafc" />'
-    ]
-    
-    title = data.get("title", "Service Blueprint")
-    svg.append(f'<text x="{margin}" y="{margin + 20}" class="title">{title}</text>')
-    
-    offset_x = margin + label_w
-    offset_y = margin + header_h
-    
-    # Draw Phase Headers
-    for i, phase in enumerate(phases):
-        x = offset_x + (i * col_w) + (col_w / 2)
-        y = offset_y - 15
-        svg.append(f'<text x="{x}" y="{y}" class="header" text-anchor="middle">{phase}</text>')
-        
-    # Pass 2: Calculate coordinates and draw background lines/labels and boxes
-    current_y = offset_y
-    cell_rects_and_text = [] # Save these to draw *after* the connection lines
-    
+    W = label_w + nc * col_w + 2 * margin
+    H = header_h + sum(rh_list) + 2 * margin
+    S = scale
+
+    img  = Image.new("RGBA", (W * S, H * S), BG)
+    draw = ImageDraw.Draw(img)
+
+    ft = load_font(26 * S); fh = load_font(16 * S)
+    fl = load_font(14 * S); fc = load_font(13 * S); fd = load_font(12 * S)
+
+    # Title
+    draw.text((margin * S, (margin + 4) * S),
+              data.get("title", "Service Blueprint"), font=ft, fill=DARK)
+
+    ox, oy = margin + label_w, margin + header_h
+
+    # Phase headers (horizontally centered)
+    for i, ph in enumerate(phases):
+        bb = draw.textbbox((0, 0), ph, font=fh)
+        tw = bb[2] - bb[0]
+        x  = (ox + i * col_w + col_w // 2) * S - tw // 2
+        draw.text((x, (oy - 22) * S), ph, font=fh, fill=MED)
+
+    cur_y  = oy
+    coords = {}
+    later  = []   # drawn after connections: ("rect", x1,y1,x2,y2) | ("text", x,y,s,f,col)
+
     for r_idx, row in enumerate(rows):
-        row_h = row_heights[r_idx]
-        
-        # Grid lines / Dividers
+        rh = rh_list[r_idx]
+
+        # Grid / divider line
         if row.get("divider"):
-            svg.append(f'<line x1="{margin}" y1="{current_y}" x2="{width-margin}" y2="{current_y}" class="divider-line"/>')
-            svg.append(f'<text x="{width-margin}" y="{current_y-6}" class="divider-text" text-anchor="end">{row["divider"]}</text>')
+            draw.line([(margin * S, cur_y * S), ((W - margin) * S, cur_y * S)],
+                      fill=DIV_LINE, width=2 * S)
+            txt = row["divider"]
+            bb  = draw.textbbox((0, 0), txt, font=fd)
+            tw  = bb[2] - bb[0]
+            later.append(("text", (W - margin) * S - tw - 4 * S, (cur_y - 14) * S,
+                          txt, fd, DIV_LINE))
         elif r_idx > 0:
-            svg.append(f'<line x1="{margin}" y1="{current_y}" x2="{width-margin}" y2="{current_y}" class="grid-line"/>')
-            
-        svg.append(f'<text x="{margin}" y="{current_y + (row_h/2) + 5}" class="label">{row.get("name", "")}</text>')
-            
-        # Draw cells
-        for c_idx, cell in enumerate(row.get("cells", [])):
-            items = cell
-            x = offset_x + (c_idx * col_w)
-            
-            # First, calculate total block height to vertically center it in the row
-            valid_items_list = []
-            cell_block_h = 0
-            for item in items:
-                content = item.get("content", "").strip() if isinstance(item, dict) else str(item).strip()
-                if content:
-                    lines = wrap_text(content)
-                    item_h = (box_padding * 2) + (len(lines) * line_h)
-                    valid_items_list.append((item, lines, item_h))
-                    cell_block_h += item_h
-                    
-            if len(valid_items_list) > 1:
-                cell_block_h += item_spacing * (len(valid_items_list) - 1)
-                
-            if valid_items_list:
-                # Calculate starting Y to center the block of items vertically
-                start_y = current_y + (row_h - cell_block_h) / 2
-                current_item_y = start_y
-                
-                for item, lines, item_h in valid_items_list:
-                    box_x = x + 10
-                    box_w = col_w - 20
-                    
+            draw.line([(margin * S, cur_y * S), ((W - margin) * S, cur_y * S)],
+                      fill=LGRAY, width=S)
+
+        # Row label (vertically centered)
+        lbl = row.get("name", "")
+        bb  = draw.textbbox((0, 0), lbl, font=fl)
+        lh  = bb[3] - bb[1]
+        draw.text((margin * S, (cur_y + rh // 2) * S - lh // 2),
+                  lbl, font=fl, fill=GRAY)
+
+        # Cells
+        for ci, cell in enumerate(row.get("cells", [])):
+            bx0 = ox + ci * col_w
+            vitems, block_h = [], 0
+            for item in cell:
+                c = (item.get("content", "") if isinstance(item, dict) else str(item)).strip()
+                if c:
+                    lns = wrap_text(c)
+                    ih  = box_pad * 2 + len(lns) * line_h
+                    vitems.append((item, lns, ih))
+                    block_h += ih
+            if len(vitems) > 1:
+                block_h += item_gap * (len(vitems) - 1)
+            if vitems:
+                iy = cur_y + (rh - block_h) // 2
+                for item, lns, ih in vitems:
+                    bx, bw = bx0 + 10, col_w - 20
                     if isinstance(item, dict) and item.get("id"):
-                        cell_coords[item["id"]] = {
-                            "cx": box_x + (box_w / 2),
-                            "cy": current_item_y + (item_h / 2),
-                            "top": current_item_y,
-                            "bottom": current_item_y + item_h,
-                            "left": box_x,
-                            "right": box_x + box_w
-                        }
-                    
-                    rect_svg = f'<rect x="{box_x}" y="{current_item_y}" width="{box_w}" height="{item_h}" class="cell-rect"/>'
-                    cell_rects_and_text.append(rect_svg)
-                    
-                    for l_idx, line in enumerate(lines):
-                        ly = current_item_y + box_padding + (l_idx * line_h) + 5
-                        safe_line = line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-                        cell_rects_and_text.append(f'<text x="{box_x + box_padding}" y="{ly}" class="content">{safe_line}</text>')
-                        
-                    current_item_y += item_h + item_spacing
-                
-        current_y += row_h
+                        coords[item["id"]] = dict(
+                            cx=bx + bw / 2,  cy=iy + ih / 2,
+                            top=iy,          bottom=iy + ih,
+                            left=bx,         right=bx + bw,
+                        )
+                    later.append(("rect", bx * S, iy * S, (bx + bw) * S, (iy + ih) * S))
+                    for li, line in enumerate(lns):
+                        ly = (iy + box_pad + li * line_h + 2) * S
+                        later.append(("text", (bx + box_pad) * S, ly, line, fc, MED))
+                    iy += ih + item_gap
 
-    # Pass 3: Draw Connection Lines (Bezier Curves)
-    for conn in connections:
-        src = cell_coords.get(conn.get("from"))
-        dst = cell_coords.get(conn.get("to"))
-        
-        if src and dst:
-            is_vertical = abs(dst["cx"] - src["cx"]) < abs(dst["cy"] - src["cy"])
-            
-            if is_vertical:
-                sx, ex = src["cx"], dst["cx"]
-                if dst["cy"] > src["cy"]: # Flowing down
-                    sy, ey = src["bottom"], dst["top"]
-                else:                     # Flowing up
-                    sy, ey = src["top"], dst["bottom"]
-                    
-                cp1x, cp1y = sx, sy + (ey - sy) * 0.4
-                cp2x, cp2y = ex, ey - (ey - sy) * 0.4
-            else:
-                sy, ey = src["cy"], dst["cy"]
-                if dst["cx"] > src["cx"]: # Flowing right
-                    sx, ex = src["right"], dst["left"]
-                else:                     # Flowing left
-                    sx, ex = src["left"], dst["right"]
-                    
-                cp1x, cp1y = sx + (ex - sx) * 0.4, sy
-                cp2x, cp2y = ex - (ex - sx) * 0.4, ey
+        cur_y += rh
 
-            path_d = f"M {sx} {sy} C {cp1x} {cp1y}, {cp2x} {cp2y}, {ex} {ey}"
-            svg.append(f'<path d="{path_d}" class="connection" marker-end="url(#arrow)" />')
+    # Pass 3 – connection curves (drawn before boxes)
+    for conn in conns:
+        src = coords.get(conn.get("from"))
+        dst = coords.get(conn.get("to"))
+        if not (src and dst):
+            continue
+        vert = abs(dst["cx"] - src["cx"]) < abs(dst["cy"] - src["cy"])
+        if vert:
+            sx, ex = src["cx"], dst["cx"]
+            if dst["cy"] > src["cy"]: sy, ey = src["bottom"], dst["top"]
+            else:                     sy, ey = src["top"],    dst["bottom"]
+            cp1 = (sx, sy + (ey - sy) * 0.4)
+            cp2 = (ex, ey - (ey - sy) * 0.4)
+        else:
+            sy, ey = src["cy"], dst["cy"]
+            if dst["cx"] > src["cx"]: sx, ex = src["right"], dst["left"]
+            else:                     sx, ex = src["left"],  dst["right"]
+            cp1 = (sx + (ex - sx) * 0.4, sy)
+            cp2 = (ex - (ex - sx) * 0.4, ey)
 
-    # Pass 4: Draw boxes and text so they sit above the connecting lines
-    svg.extend(cell_rects_and_text)
-        
-    svg.append('</svg>')
-    
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write("\n".join(svg))
+        p0 = (sx*S, sy*S); p1 = (cp1[0]*S, cp1[1]*S)
+        p2 = (cp2[0]*S, cp2[1]*S); p3 = (ex*S, ey*S)
+        draw_bezier(draw, p0, p1, p2, p3, PURPLE, 2 * S)
+        near = bezier_pt(0.94, p0, p1, p2, p3)
+        draw_arrow(draw, p3, near, PURP_S, 10 * S)
+
+    # Pass 4 – boxes and text on top of connection lines
+    for d in later:
+        if d[0] == "rect":
+            rrect(draw, d[1], d[2], d[3], d[4], 6 * S, WHITE, BORDER, S)
+        else:
+            draw.text((d[1], d[2]), d[3], font=d[4], fill=d[5])
+
+    # Downsample for smooth anti-aliasing
+    img.convert("RGB").resize((W, H), Image.LANCZOS).save(output_file, "PNG")
+
 
 def main():
-    output_path = "blueprint.svg"
+    output_path = "blueprint.png"
     try:
-        generate_svg_image(BLUEPRINT_DATA, output_path)
+        generate_png(BLUEPRINT_DATA, output_path)
         print(f"✅ Service Blueprint image successfully generated at '{output_path}'.")
-        print("Note: SVGs are vector images that can be viewed in any web browser or image viewer.")
+        print("Note: PNG images can be viewed in any image viewer or web browser.")
         print("Agent Instruction: Now, please generate the detailed 'service-blueprint.md' report.")
     except Exception as e:
+        import traceback; traceback.print_exc()
         print(f"❌ Unexpected error generating image: {e}")
+
 
 if __name__ == "__main__":
     main()
