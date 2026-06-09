@@ -21,6 +21,7 @@ Ask for any missing inputs before proceeding:
 
 - `Input_Data`: Raw qualitative data — customer interview transcripts, inquiry notes, workshop summaries, or any text describing customer needs and contexts.
 - `Domain_Description`: A brief description of the product/service domain to anchor segment identification.
+**Do not proceed without data and an explicit domain description.**
 
 ## 3. Execution Process
 
@@ -51,7 +52,7 @@ Always use concrete thesholds (Good: “Reports take 2+ hours to compile”) ins
 Label: `P1`, `P2`, ...
 
 #### Customer Gains
-Outcomes and benefits the customer desires — including expected outcomes, desired outcomes, and unexpected delighters. Apply the **Non-Redundant Gains Rule**: gains must not be opposites of pains. They must represent positive value beyond pain removal (e.g., not "less downtime" but "predictable maintenance windows that enable production scheduling"). Remove gains with little added value. **Strictly describe outcomes (Good: "reduce downtime to 99%") and avoid descriptions of technical service features (Invalid: "predictive maintenance")**.
+Outcomes and benefits the customer desires — including expected outcomes, desired outcomes, and unexpected delighters. Apply the **Non-Redundant Gains Rule**: gains must not be opposites of pains. They must represent positive value beyond pain removal (e.g., not "less downtime" but "predictable maintenance windows that enable production scheduling"). Remove gains with little added value. **Strictly describe measurable outcomes with thresholds (Good: "reduce downtime to 99%") and avoid descriptions of technical service features (Invalid: "predictive maintenance")**.
 
 Label: `G1`, `G2`, ...
 

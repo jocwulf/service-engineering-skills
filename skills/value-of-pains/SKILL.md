@@ -10,13 +10,11 @@ license: MIT
 
 You are an expert in service innovation and value-based pricing. Your goal is to quantify the **baseline economic potential** of customer pains and gains — that is, how much value is at stake before any service solution is applied. This follows the analytical approach from [The Value of Solving Pains](https://arxiv.org/pdf/2412.03130).
 
-This skill produces a **pain/gain value baseline** used as direct input for the `value-of-solving-pains` skill.
-
 ## Required Inputs
 
 Ask for any missing inputs before proceeding:
 
-- `Segment_Profiles`: Jobs-Pains-Gains profiles for all relevant customer segments. Accept output from the `jobs-pains-gains` skill directly, or ask the user to describe the customer segment's pains and gains manually.
+- `Segment_Profiles`: Jobs-Pains-Gains profiles for all relevant customer segments. Use report `jobs-pains-gains-output.md` from the `jobs-pains-gains` skill directly , or ask the user to describe the customer segment's pains and gains manually.
 
 ## Execution Phases
 
@@ -89,7 +87,7 @@ Then save the following files:
 2. **CSV file** (`value_of_pains.csv`) with columns:
    `Item ID, Type (Pain/Gain), Description, Agent (Customer/Provider), Frequency (f_i), Impact (v_i), Potential Value (Annual)`
 
-3. **Bar chart** using a Python script (`value_of_pains.py`) that reads the CSV and plots all items' Potential Values as a labeled bar chart (pains in red/coral, gains in green/teal), saving output as `value_of_pains.png`. Run the script after writing it.
+3. **Bar chart** using the below Python Visualization Template that plots all items' Potential Values as a labeled bar chart (pains in red/coral, gains in green/teal), saving output as `value_of_pains.png`. Run the script after writing it.
 
 ---
 
@@ -114,3 +112,113 @@ Then save the following files:
 - **Total Provider Pain Potential**: 7'825 €
 - **Total Customer Gain Potential**: 2'400 €
 - **Total Provider Gain Potential**: 1'800 €
+
+---
+
+## Python Visualization Template
+
+```python
+!pip install matplotlib
+import csv
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+
+item_ids = []
+types = []
+descriptions = []
+agents = []
+potential_values = []
+
+with open("value_of_pains.csv", newline="", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        item_ids.append(row["Item ID"])
+        types.append(row["Type (Pain/Gain)"])
+        descriptions.append(row["Description"])
+        agents.append(row["Agent (Customer/Provider)"])
+        potential_values.append(float(row["Potential Value (Annual)"]))
+
+colors = [
+    "#e07070" if t.strip().lower() == "pain" else "#5cb85c"
+    for t in types
+]
+edge_colors = [
+    "#a03030" if t.strip().lower() == "pain" else "#2d7a2d"
+    for t in types
+]
+
+short_labels = [
+    f"{item_ids[i]}\n({agents[i][:4]})"
+    for i in range(len(item_ids))
+]
+
+fig, ax = plt.subplots(figsize=(max(10, len(item_ids) * 1.3), 7))
+
+x = range(len(item_ids))
+bar_width = 0.55
+
+bars = ax.bar(
+    list(x),
+    potential_values,
+    width=bar_width,
+    color=colors,
+    edgecolor=edge_colors,
+    linewidth=1.2,
+    zorder=3,
+)
+
+for bar, val in zip(bars, potential_values):
+    ax.text(
+        bar.get_x() + bar.get_width() / 2,
+        bar.get_height() + max(potential_values) * 0.015,
+        f"{int(val):,} €",
+        ha="center",
+        va="bottom",
+        fontsize=8.5,
+        fontweight="bold",
+        color="#333333",
+    )
+
+ax.set_xticks(list(x))
+ax.set_xticklabels(short_labels, fontsize=9)
+ax.set_ylabel("Annual Potential Value (€)", fontsize=11)
+ax.set_title(
+    "Value of Pains & Gains — Baseline Potential Values\n"
+    "Frequency × Impact per Item",
+    fontsize=12,
+    fontweight="bold",
+    pad=14,
+)
+ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda v, _: f"{int(v):,} €"))
+ax.grid(axis="y", linestyle="--", alpha=0.4, zorder=0)
+ax.set_axisbelow(True)
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+from matplotlib.patches import Patch
+legend_elements = [
+    Patch(facecolor="#e07070", edgecolor="#a03030", label="Pain ($VP_{pot}$)"),
+    Patch(facecolor="#5cb85c", edgecolor="#2d7a2d", label="Gain ($VG_{pot}$)"),
+]
+ax.legend(handles=legend_elements, fontsize=10, loc="upper right")
+
+total_pain = sum(v for v, t in zip(potential_values, types) if t.strip().lower() == "pain")
+total_gain = sum(v for v, t in zip(potential_values, types) if t.strip().lower() == "gain")
+total = total_pain + total_gain
+
+ax.annotate(
+    f"Total Pain: {total_pain:,.0f} €\nTotal Gain: {total_gain:,.0f} €\nTotal: {total:,.0f} €",
+    xy=(0.98, 0.97),
+    xycoords="axes fraction",
+    ha="right",
+    va="top",
+    fontsize=10,
+    fontweight="bold",
+    color="#1b365d",
+    bbox=dict(boxstyle="round,pad=0.4", facecolor="#f5f5f5", edgecolor="#555555", linewidth=1.2),
+)
+
+plt.tight_layout()
+plt.savefig("value_of_pains.png", dpi=150, bbox_inches="tight")
+print(f"Chart saved. Total Pain Potential: {total_pain:,.0f} €  |  Total Gain Potential: {total_gain:,.0f} €  |  Total: {total:,.0f} €")
+```

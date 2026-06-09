@@ -21,10 +21,12 @@ Customer Data
       │
       ├──────────────────────────────────► ⑥ /service-ecosystem
       │
-      ▼
-⑤ /value-of-solving-pains             ← ② ④
-
-⑦ /service-business-case              ← ④ ⑤
+      ├──────────────────────────────────► ⑦ /service-blueprint
+      │                                         │
+      ▼                                         ▼
+⑤ /value-of-solving-pains    ← ② ④   ⑧ /service-business-model-canvas  ← ④ ⑦
+                                              │
+⑨ /service-business-case              ← ⑤ ⑧
 ```
 
 `/human-agent-interaction` is orthogonal — it configures the collaboration mode and can be applied at any point.
@@ -39,7 +41,9 @@ Customer Data
 | ④ | [value-proposition-canvas-fit](skills/value-proposition-canvas-fit/) | `/value-proposition-canvas-fit` | ① ③ | Map envisioned features to pains and gains per segment; produce a Mermaid VPC diagram per segment |
 | ⑤ | [value-of-solving-pains](skills/value-of-solving-pains/) | `/value-of-solving-pains` | ② ④ | Apply alleviation factors to the pain/gain baseline to calculate effective value per service bundle; produce value-based pricing |
 | ⑥ | [smart-service-ecosystem](skills/smart-service-ecosystem/) | `/service-ecosystem` | ④ | Derive a complete ecosystem of roles, institutions, and value flows from VPC outputs |
-| ⑦ | [service-business-case](skills/service-business-case/) | `/service-business-case` | ④ ⑤ | Build a full financial business case: Simplified FCFF, NPV, IRR, and Payback Period with sensitivity analysis |
+| ⑦ | [service-blueprint](skills/service-blueprint/) | `/service-blueprint` | ④ | Synthesize a Service Blueprint matrix from the VPC outputs; embed data into the SVG generator and write a narrative report |
+| ⑧ | [service-business-model-canvas](skills/service-business-model-canvas/) | `/service-business-model-canvas` | ④ ⑦ | Generate a segment-specific Business Model Canvas from VPC and Service Blueprint outputs; produce a PNG visualization |
+| ⑨ | [service-business-case](skills/service-business-case/) | `/service-business-case` | ⑤ ⑧ | Build a full financial business case: Simplified FCFF, NPV, IRR, and Payback Period with sensitivity analysis |
 | — | [human-ai-interaction](skills/human-ai-interaction/) | `/human-agent-interaction` | *(orthogonal)* | Configure a structured human-in-the-loop collaboration protocol (interaction modes, checkpoints, approval gates) |
 
 ## Usage

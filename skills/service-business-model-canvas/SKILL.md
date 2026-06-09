@@ -45,8 +45,7 @@ This skill relies on the exhaustive subcomponents and exact attribute enumeratio
 6. Capabilities (Key Resources) [ID: KR-X] -> Enables [VP-X]
 *   **Subcomponent (Resource):** Inputs into the value-creation process.
 *   **Attributes:**
-    *   `Resource Type:` [Tangible, Intangible, Human]
-    *   `Link to Activity:` [Fits, Flows, Shared]
+    *   `Resource Type:` [Tangible, Intangible, Human, Financial]
 
 7. Value Configuration (Key Activities) [ID: KA-X] -> Uses [KR-X]
 *   **Subcomponent (Activity):** Repeatable pattern of action.
@@ -61,9 +60,8 @@ This skill relies on the exhaustive subcomponents and exact attribute enumeratio
 *   **Subcomponent (Agreement):** Voluntarily initiated cooperative agreement.
 *   **Attributes:**
     *   `Reasoning:` [Optimization/Economies of scale, Reduction of risk/uncertainty, Acquisition of resources]
-    *   `Strategic Importance:` [Scale 0-5]
-    *   `Degree of Integration:` [Scale 0-5]
-    *   `Substitutability:` [Scale 0-5]
+    *   `Strategic Importance:` [Scale 0 = very low -5 = very high]
+
 
 9. Cost Structure [ID: C-X] -> Driven by [KA-X], [KR-X], [KP-X]
 *   **Subcomponent (Account):** Registry of pecuniary transactions.
@@ -95,6 +93,7 @@ Step 4: Execute Visualization Script
 *   **Complexity:** Use at least 5 actionable and specific iteams per block, but do not exceed 10 items per block to maintain clarity.
 *   **Strict ID Mapping:** Ensure every component explicitly connects to its relevant counterparts using the ID scheme (e.g., if a new partnership is formed, explicitly state which `[KA-X]` or `[KR-X]` it supports).
 *   **Actionable Cost/Revenue:** Do not just say "Software Costs"; say "Direct Cost: AWS Server architecture supporting `[VP-2]`"
+*   **Reasoning Transparency:** For each mapping, attribute selection and valuation, provide a clear rationale and core assumptions.
 
 ##  Python Visualization Template
 When executing Step 4, use the following Python code. Dynamically replace the `nodes` and `edges` dictionaries with the actual IDs and abbreviated labels generated in Step 2.
