@@ -90,67 +90,98 @@ Step 4: Execute Visualization Script
 *   Present the image to the user.
 
 
+## Guidelines
+*   **Item Specificity:** Only include items specific to a business model idea (good: "Customer Channel: Instagram Launch Campaign") and leave out items that are generic (bad: "Customer Channel: Homepage")
+*   **Complexity:** Use at least 5 actionable and specific iteams per block, but do not exceed 10 items per block to maintain clarity.
+*   **Strict ID Mapping:** Ensure every component explicitly connects to its relevant counterparts using the ID scheme (e.g., if a new partnership is formed, explicitly state which `[KA-X]` or `[KR-X]` it supports).
+*   **Actionable Cost/Revenue:** Do not just say "Software Costs"; say "Direct Cost: AWS Server architecture supporting `[VP-2]`"
+
 ##  Python Visualization Template
 When executing Step 4, use the following Python code. Dynamically replace the `nodes` and `edges` dictionaries with the actual IDs and abbreviated labels generated in Step 2.
 
 ```python
-import networkx as nx
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
-# LLM INSTRUCTION: Dynamically populate these nodes based on the generated BMC.
+# LLM INSTRUCTION: Populate these 9 blocks with actual IDs, short labels, linked IDs, and colors.
+# Layout follows the standard Business Model Canvas grid (4 columns × 3 rows + bottom strip).
+# linked_ids: list the IDs this block connects to — they appear as small text inside the cell.
 # Colors: CS=pink, VP=lightgreen, CH/CR=lightblue, RS=lightyellow, KR=peach, KA=salmon, KP=magenta, C=purple
-nodes = {
-    "CS-1": {"label": "CS-1: Segment Name\n(Demographic)", "color": "#ffb3ba"},
-    "VP-1": {"label": "VP-1: Proposition\n(Effort/Economy)", "color": "#baffc9"},
-    "CH-1": {"label": "CH-1: Channel\n(Purchase/Partner)", "color": "#bae1ff"},
-    "CR-1": {"label": "CR-1: Relationship\n(Retention/Trust)", "color": "#bae1ff"},
-    "RS-1": {"label": "RS-1: Revenue\n(Selling/Fixed)", "color": "#ffffba"},
-    "KR-1": {"label": "KR-1: Resource\n(Intangible)", "color": "#ffdfba"},
-    "KA-1": {"label": "KA-1: Activity\n(Value Chain/Ops)", "color": "#f67280"},
-    "KP-1": {"label": "KP-1: Partner\n(Resource Acq/Int: 4)", "color": "#f8b195"},
-    "C-1":  {"label": "C-1: Cost\n(Direct/60%)", "color": "#d5aaee"}
-}
 
-# LLM INSTRUCTION: Dynamically map the edges based on the relationships in the Markdown tables.
-edges = [
-    ("VP-1", "CH-1"), ("CH-1", "CS-1"),
-    ("VP-1", "CR-1"), ("CR-1", "CS-1"),
-    ("VP-1", "RS-1"), ("CS-1", "RS-1"),
-    ("KR-1", "VP-1"),
-    ("KA-1", "KR-1"),
-    ("KP-1", "KA-1"), ("KP-1", "KR-1"),
-    ("KA-1", "C-1"), ("KR-1", "C-1"), ("KP-1", "C-1")
+blocks = [
+    # (col, row, colspan, rowspan, section_title, id_label, short_label, linked_ids, color)
+    (0, 1, 1, 1, "Key Partners",        "KP-1", "Partner Name\n(Resource Acq)",    ["KA-1","KR-1","C-1"],   "#f8b195"),
+    (1, 0, 1, 1, "Key Activities",      "KA-1", "Activity Name\n(Value Chain/Ops)", ["KP-1","KR-1","VP-1","C-1"], "#f67280"),
+    (1, 2, 1, 1, "Key Resources",       "KR-1", "Resource Name\n(Intangible)",      ["KP-1","KA-1","VP-1","C-1"], "#ffdfba"),
+    (2, 1, 1, 1, "Value Propositions",  "VP-1", "Proposition\n(Effort/Economy)",    ["CS-1","CH-1","CR-1","RS-1","KR-1"], "#baffc9"),
+    (3, 0, 1, 1, "Customer Relations",  "CR-1", "Relationship\n(Retention/Trust)",  ["CS-1","VP-1"],         "#bae1ff"),
+    (3, 2, 1, 1, "Channels",            "CH-1", "Channel\n(Purchase/Partner)",      ["CS-1","VP-1"],         "#bae1ff"),
+    (4, 1, 1, 1, "Customer Segments",   "CS-1", "Segment Name\n(Demographic)",      ["VP-1","CH-1","CR-1","RS-1"], "#ffb3ba"),
+    (0, 3, 2, 1, "Cost Structure",      "C-1",  "Cost Name\n(Direct/60%)",          ["KP-1","KA-1","KR-1"],  "#d5aaee"),
+    (3, 3, 2, 1, "Revenue Streams",     "RS-1", "Revenue Name\n(Selling/Fixed)",    ["CS-1","VP-1"],         "#ffffba"),
 ]
 
-# Generate directed graph
-G = nx.DiGraph()
-for node_id, attrs in nodes.items():
-    G.add_node(node_id, label=attrs["label"], color=attrs["color"])
-G.add_edges_from(edges)
+# Grid geometry
+COL_W  = 1.0   # width of one column unit
+ROW_H  = 0.8   # height of one row unit
+COLS   = 5
+ROWS   = 4
+FIG_W  = COLS * COL_W * 3.2
+FIG_H  = ROWS * ROW_H * 3.2
 
-plt.figure(figsize=(16, 10))
-# Multipartite or spring layout
-pos = nx.spring_layout(G, k=1.2, seed=42)
+fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
+ax.set_xlim(0, COLS * COL_W)
+ax.set_ylim(0, ROWS * ROW_H)
+ax.axis("off")
 
-colors = [G.nodes[n]['color'] for n in G.nodes]
-labels = {n: G.nodes[n]['label'] for n in G.nodes}
+for (col, row, cspan, rspan, section, id_label, short_label, linked_ids, color) in blocks:
+    x = col * COL_W
+    # row=0 is top; flip y so row 0 appears at top
+    y = (ROWS - row - rspan) * ROW_H
+    w = cspan * COL_W
+    h = rspan * ROW_H
 
-# Draw nodes as styled bounding boxes
-nx.draw_networkx_nodes(G, pos, node_color=colors, node_shape="o", node_size=100) # Invisible backing
-for p, (node, position) in zip(G.nodes, pos.items()):
-    plt.text(position[0], position[1], labels[node], size=9, ha="center", va="center", 
-             fontweight="bold", bbox=dict(boxstyle="round4,pad=0.5", fc=G.nodes[node]['color'], ec="gray", alpha=0.9))
+    rect = mpatches.FancyBboxPatch(
+        (x + 0.01, y + 0.01), w - 0.02, h - 0.02,
+        boxstyle="round,pad=0.02",
+        linewidth=1.5, edgecolor="#555555",
+        facecolor=color, zorder=2
+    )
+    ax.add_patch(rect)
 
-nx.draw_networkx_edges(G, pos, arrowstyle="-|>", arrowsize=20, edge_color="gray", width=2, connectionstyle="arc3,rad=0.1")
+    cx = x + w / 2
+    cy = y + h / 2
 
-plt.title("Ontological Business Model Interdependencies", fontsize=18, fontweight="bold")
-plt.axis("off")
+    # Section header (small, top of cell)
+    ax.text(cx, y + h - 0.05, section,
+            ha="center", va="top", fontsize=7, color="#444444",
+            fontstyle="italic", zorder=3)
+
+    # Main ID + label (centre)
+    ax.text(cx, cy + 0.04, f"{id_label}\n{short_label}",
+            ha="center", va="center", fontsize=9,
+            fontweight="bold", color="#111111", zorder=3,
+            multialignment="center")
+
+    # Linked IDs (small, bottom of cell)
+    if linked_ids:
+        link_text = "→ " + "  ".join(linked_ids)
+        ax.text(cx, y + 0.05, link_text,
+                ha="center", va="bottom", fontsize=6.5,
+                color="#555555", zorder=3)
+
+# Vertical divider between left half (cost) and right half (revenue) in bottom row
+mid_x = COLS / 2 * COL_W
+bottom_y = 0
+top_y = ROW_H
+ax.plot([mid_x, mid_x], [bottom_y, top_y], color="#888888", linewidth=1, zorder=4)
+
+plt.title("Business Model Canvas — Ontological View", fontsize=14, fontweight="bold", pad=10)
 plt.tight_layout()
 
-# Save the plot
 filename = "business_model_ontology.png"
-plt.savefig(filename, dpi=300, bbox_inches="tight")
-print(f"Visualization successfully saved to {filename}")
+plt.savefig(filename, dpi=200, bbox_inches="tight")
+print(f"Visualization saved to {filename}")
 ```
 
 ## Ontological Business Model Canvas
