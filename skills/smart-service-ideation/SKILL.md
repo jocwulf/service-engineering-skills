@@ -71,7 +71,7 @@ Provide a final evaluation table mapping your bundles to the total value rescued
 | [Bundle 2] | [e.g., User App + Energy API] | Pay Per Use | [e.g., Saves 15% on operational overhead] |
 
 ### 4. Potential Feasibility Grid
-Generate a grid visualization summarizing the feasibility scores for each bundle on the x-axis, financial impact on the y-axis, and feature spectrum as bubble size. Adapt python script below.
+Generate a grid visualization summarizing the feasibility scores for each bundle on the x-axis, financial impact on the y-axis, and feature spectrum as bubble size. Adapt python script below. Avoid overlapping text and double check.
 
 ## 5. Guardrails
 * DO NOT summarize, compress, or use placeholders like "...etc." You must output the rapid-fire concept matrix completely to satisfy the 100+ idea divergence target.

@@ -29,18 +29,17 @@ Ask for any missing inputs before proceeding:
 
 Read through all input data and identify distinct customer segments. A segment is distinct when it has a materially different context, role, or relationship to the domain (e.g., different decision-making authority, workflow, technical literacy, or success criteria). Name each segment concisely (e.g., "Plant Maintenance Engineer", "Procurement Manager", "End User Operator").
 Think of further customer segments relevant for the domain, even if not explicitly mentioned in the input data. Use inference where necessary, but mark inferred segments clearly.
-Output a segment list with a one-sentence rationale for why each is distinct to the user and prompt for exclusion of any segments that may be out of scope and inclusion of any additional segments the user thinks are relevant before proceeding to profiling. DO NOT proceed to profiling without user approval.
+Output a segment list with a one-sentence rationale for why each is distinct to the user and prompt for exclusion of any segments that may be out of scope and inclusion of any additional segments the user thinks are relevant before proceeding to profiling. Prompt whether inference is allowed. DO NOT proceed to profiling without user approval.
 
 ### Step 2: Jobs-Pains-Gains Extraction per Segment
 
-For each identified segment, extract and label the following. Use evidence from the input data where possible; infer where necessary and mark inferences with *(inferred)*.
+For each identified segment, extract and label the following. Provide quotes from the input data for each jobs, pain and gain; infer only if requested by user and mark inferences with *(inferred)*.
 
 #### Customer Jobs
 Tasks the customer is trying to accomplish, obligations they must fulfill, or outcomes they are pursuing. Action-only, no evaluation (good: "create reports", invalid: "create reports quickly"). Classify each job:
 - **Functional** (practical task or outcome)
 - **Social** (how they want to be perceived)
 - **Emotional** (how they want to feel)
-Formulate as follows: "[job title]: When [situation], I want to [job] so I can [desired outcome]."
 Label: `CJ1`, `CJ2`, ...
 
 #### Customer Pains
@@ -53,7 +52,6 @@ Label: `P1`, `P2`, ...
 
 #### Customer Gains
 Outcomes and benefits the customer desires — including expected outcomes, desired outcomes, and unexpected delighters. Apply the **Non-Redundant Gains Rule**: gains must not be opposites of pains. They must represent positive value beyond pain removal (e.g., not "less downtime" but "predictable maintenance windows that enable production scheduling"). Remove gains with little added value. **Strictly describe measurable outcomes with thresholds (Good: "reduce downtime to 99%") and avoid descriptions of technical service features (Invalid: "predictive maintenance")**.
-
 Label: `G1`, `G2`, ...
 
 ### Step 3: Cross-Segment Validation
@@ -83,22 +81,23 @@ Save output to `jobs-pains-gains-output.md`.
 #### Segment [N]: [Name]
 
 **Customer Jobs**
-| ID | Job Description | Type |
-|----|----------------|------|
-| CJ1 | ... | Functional |
-| CJ2 | ... | Social |
+| ID | Job Description | Type | Evidence |
+|----|----------------|------|----------|
+| CJ1 | ... | Functional | "..." |
+| CJ2 | ... | Emotional | "..." |
+| CJ3 | ... | Social | "..." |
 
 **Customer Pains**
-| ID | Pain Description |
-|----|----------------|
-| P1 | ... |
-| P2 | ... |
+| ID | Pain Description | Evidence |
+|----|----------------|----------|
+| P1 | ... | "..." |
+| P2 | ... | "..."|
 
 **Customer Gains** *(non-redundant with pains)*
-| ID | Gain Description |
-|----|----------------|
-| G1 | ... |
-| G2 | ... |
+| ID | Gain Description | Evidence |
+|----|----------------|----------|
+| G1 | ... | "..." |
+| G2 | ... | "..." |
 
 ---
 
@@ -113,10 +112,42 @@ Save output to `jobs-pains-gains-output.md`.
 
 ## 5. Guardrails
 
-- Do not compress or omit items. Every job, pain, and gain extracted from the input data must appear in the output.
-- Gains must be non-redundant with pains — they must represent positive, additive value beyond pain removal.
-- Replace vague phrases with measurable thresholds
-(e.g., "waiting forever feels like wasted time" to "waiting >15 minutes ...")
-- Mark inferences explicitly with *(inferred)* so downstream skills can distinguish evidence-based from assumed items.
-- Split into multiple profiles if jobs differ significantly and pains and gains diverge, even if the segments share a common role or context.
-- Use 15 to 30 items per segment as a guideline, but do not omit any relevant items to meet this target. Prioritize non-obvious, high-impact jobs, pains, and gains over more generic ones.
+*   **Profile the Customer, Not the Product:** Describe functional, social, or emotional realities strictly from the customer's current state. Keep entries completely independent of any future software, features, or platforms.
+    *   *Correct:* "Needs visibility into cross-team project statuses."
+    *   *Incorrect:* "Needs an online dashboard."
+
+*   **Eliminate Technical Delivery Leakage:** Do not frame customer needs around delivery mechanisms, interfaces, or architectural choices.
+    *   *Correct:* "Securely transfer confidential client financial data."
+    *   *Incorrect:* "Upload documents via an encrypted SFTP portal."
+
+*   **Strict Segment Separation:** Create separate profiles if core jobs differ or if identical jobs result in diverging pains and gains. Do not merge distinct user personas based on a shared job title or context.
+
+*   **Maintain Structural Boundaries:** Ensure every item maps to exactly one category without conceptual overlap:
+    *   **Job:** A functional, social, or emotional task the user is actively trying to resolve.
+    *   **Pain:** An explicit obstacle, risk, or negative outcome experienced or feared.
+    *   **Gain:** A concrete benefit, additive outcome, or element of delight.
+
+*   **Enforce Atomic Sentences:** Statements must be completely decoupled. A Job entry must contain zero adjectives, adverbs, or qualifiers describing frustration (Pain) or success (Gain).
+    *   *Correct:* **Job:** File annual income taxes. / **Pain:** Risk of penalties from manual data entry errors. / **Gain:** Processing completion time under 2 business days.
+    *   *Incorrect:* "Job: File taxes quickly to avoid manual entry penalties."
+
+*   **Quantify Vague Phrasing:** Replace qualitative or subjective descriptions with measurable thresholds, mathematical boundaries, or explicit metrics.
+    *   *Correct:* "Waiting >15 minutes to generate a report feels like wasted time."
+    *   *Incorrect:* "Waiting forever feels like wasted time."
+
+*   **Ban Subjective Modifiers:** Avoid non-specific modifiers (*fast, slow, cheap, expensive, often, rarely*) unless they are explicitly anchored to a specific number, percentage, or time-frame.
+
+*   **Mandate Holistic Job Diversity:** Balance profiles across three dimensions: Functional (task execution), Social (reputation/status), and Personal/Emotional (internal feelings/psychological safety).
+
+*   **Prioritize High-Impact Nuance:** Document highly specific, non-obvious operational realities over generic observations. Avoid treating the user as a purely transactional execution machine.
+
+*   **Ensure Additive Value:** Gains must represent positive, additive value beyond simple pain removal. A Gain must *never* be the inverse or positive rephrasing of a listed Pain.
+    *   *Correct:* **Pain:** High subscription cost exceeding $1,000/month. / **Gain:** Native integration with existing ERP software.
+    *   *Incorrect:* **Pain:** High subscription cost. / **Gain:** Low subscription cost.
+
+*   **No Compression or Omission:** Do not compress or aggregate raw findings. Every individual job, pain, and gain identified in source data must be explicitly itemized as a standalone line item.
+
+*   **Target Density Guidelines:** Aim for an operational density of 15 to 30 items per segment profile to ensure depth. Never omit valid items to meet this target.
+
+*   **Explicit Inference Tagging:** Every entry that is not directly extracted from verified source data or interviews must be explicitly appended with the suffix `*(inferred)*`.
+
