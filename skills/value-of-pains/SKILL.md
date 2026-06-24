@@ -1,121 +1,222 @@
 ---
 name: value-of-pains
-description: "Quantify the baseline economic potential of customer pains and gains (frequency × impact = potential value). Produces the pain/gain value baseline used as input for the value-of-solving-pains skill."
-version: 1.0.0
+description: "Quantify the baseline economic potential of customer pains and gains (frequency × impact = potential value). Produces the valuation baseline used as input for the value-of-solving-pains skill."
+version: 1.1.0
 author: jocwulf
 license: MIT
 ---
 
 # The Value of Pains
 
-You are an expert in service innovation and value-based pricing. Your goal is to quantify the **baseline economic potential** of customer pains and gains — that is, how much value is at stake before any service solution is applied. This follows the analytical approach from [The Value of Solving Pains](https://arxiv.org/pdf/2412.03130).
+## 1. Skill Purpose
 
-## Required Inputs
+You are an expert in service innovation and value-based pricing. Your objective is to quantify the **baseline economic potential** associated with customer pains and gains before any solution is implemented. The resulting valuation establishes the economic value at stake and serves as input for downstream solution-value analysis following the approach described in [The Value of Solving Pains](https://arxiv.org/pdf/2412.03130).
 
-Ask for any missing inputs before proceeding:
+---
 
-- `Segment_Profiles`: Jobs-Pains-Gains profiles for all relevant customer segments. Use report `jobs-pains-gains-output.md` from the `jobs-pains-gains` skill directly , or ask the user to describe the customer segment's pains and gains manually.
+## 2. Required Inputs
 
-## Execution Phases
+Request any missing inputs before proceeding:
 
-Strictly follow these sequential phases. **Do not move to the next phase until the user has provided the necessary information.**
+- `Segment_Profiles`: Jobs-Pains-Gains profiles for all relevant customer segments.
+  - Preferably use `jobs-pains-gains-output.md` from the `jobs-pains-gains` skill.
+  - Alternatively, ask the user to provide customer segments, pains, and gains manually.
+
+---
+
+## 3. Execution Process
+
+Follow the phases in sequence. Do not proceed until the requirements of the current phase are completed.
 
 ### PHASE 1: Scope & Segment Selection
 
-1. List all customer segments and their labelled pains (`P1`, `P2`, ...) and gains (`G1`, `G2`, ...) from `Segment_Profiles`.
-2. Ask the user which segments, pains, and gains are in scope for this valuation exercise. Do NOT proceed without user approval.
+1. List all customer segments and their identified pains (`P1`, `P2`, ...) and gains (`G1`, `G2`, ...) from `Segment_Profiles`.
+2. Ask the user which segments, pains, and gains are in scope for valuation.
+3. Do not continue until the user approves the scope.
 
-### PHASE 2: Quantify Pains
+---
 
-For each **pain** in scope, interview the user to capture the following, **one pain at a time**:
+### Valuation Procedure
 
-1. **$f_i$ (Frequency)**: How often the pain occurs per year (e.g., 52 = once per week, 12 = monthly).
-2. **$v_i$ (Impact)**: Negative financial impact per occurrence in € or $ (e.g., lost labor, downtime cost, rework expense, warranty cost).
+For each selected item (Pain or Gain), collect:
 
-Cover both the **Customer** and **Provider** perspective where relevant — a pain may carry financial consequences for both parties (e.g., a machine breakdown costs the customer production time and the provider a field service visit).
+#### 1. Frequency ($f_i$)
 
-For **each parameter** ($f_i$, $v_i$), you must:
-- Provide a brief **assumption explanation** (1–2 sentences describing the reasoning behind the chosen value).
-- If the user provides no reasoning, cite at least one **internet source** (title + URL) that substantiates the assumption. Use web search to find real, publicly accessible sources (industry benchmarks, academic papers, analyst reports, government statistics). Do not fabricate URLs.
+Annualized occurrence frequency or probability.
 
-Calculate **Potential Pain Value ($VP_{pot,i}$)**:
+Examples:
+- Weekly event = 52
+- Monthly event = 12
+- Quarterly event = 4
+- 10% annual risk = 0.1
+- Expected once every 5 years = 0.2
+
+#### 2. Impact ($v_i$)
+
+Financial value per occurrence.
+
+Examples:
+- Labor costs
+- Downtime costs
+- Rework expenses
+- Warranty expenses
+- Revenue uplift
+- Cost avoidance
+- Margin improvement
+
+---
+
+### Evidence Requirements
+
+For every estimated parameter ($f_i$ and $v_i$):
+
+1. Provide a brief explanation (1–2 sentences) describing the reasoning.
+2. Support the estimate using one of the following:
+   - User-provided evidence
+   - Customer interview evidence
+   - Internal company data provided
+   - A real public source (title and URL)
+3. If no evidence is available, clearly mark as **assumption**.
+
+Never fabricate sources, URLs, statistics, or evidence.
+
+---
+
+### Dual-Perspective Valuation
+
+Evaluate each item separately for Customer and Provider. A financial impact may apply to both parties, only the customer, or only the provider. Record a value of `0` when no meaningful impact exists for a party.
+
+---
+
+### PHASE 2: Pain Valuation
+
+For each pain in scope:
+
+1. Collect and justify:
+   - $f_i$ = annualized frequency/risk
+   - $v_i$ = financial impact per occurrence
+
+2. Calculate:
 
 $$VP_{pot,i} = f_i \times v_i$$
 
-### PHASE 3: Quantify Gains
+where $VP_{pot,i}$ = Potential Pain Value. Repeat until all selected pains have been quantified.
 
-For each **gain** in scope, interview the user to capture the following, **one gain at a time**:
+---
 
-1. **$f_i$ (Frequency)**: How often the opportunity to realize this gain occurs per year.
-2. **$v_i$ (Value)**: Positive financial value per occurrence if the gain is fully achieved (e.g., revenue uplift, cost avoidance, hours saved × hourly rate, margin improvement).
+### PHASE 3: Gain Valuation
 
-Cover both the **Customer** and **Provider** perspective where relevant.
+For each gain in scope:
 
-Apply the same assumption/source requirement as in Phase 2.
+1. Collect and justify:
+   - $f_i$ = annualized opportunity frequency/probability
+   - $v_i$ = financial value per occurrence
 
-Calculate **Potential Gain Value ($VG_{pot,i}$)**:
+2. Calculate:
 
 $$VG_{pot,i} = f_i \times v_i$$
 
-### PHASE 3b: Pain–Gain Redundancy Check
-
-Before producing outputs, scan all quantified pains and gains for **economic double-counting**. A redundancy exists when a gain's financial value is already captured by a pain — i.e., the gain is framed as the absence or reversal of a pain rather than a genuinely additive positive outcome.
-
-**Detection rule**: Flag a gain $G_j$ as redundant with pain $P_i$ if:
-- Their descriptions refer to the same underlying event or state (e.g., G1 = "no more unplanned downtime" and P3 = "unplanned downtime"), **and**
-- The $v_i$ values were estimated using the same cash flow (e.g., both use lost production hours as the basis).
-
-For each flagged pair, present it to the user with a short explanation and ask them to resolve it by choosing one of:
-1. **Keep the pain, remove the gain valuation** — the pain already quantifies the full economic stake.
-2. **Keep both, adjust the gain** — confirm that the gain represents additional value beyond pain removal (e.g., improved scheduling capability that generates new revenue, not just avoided downtime cost) and revise $v_i$ accordingly.
-3. **Merge into a single item** — replace both with one entry that captures the complete economic effect without duplication.
-
-Do NOT proceed to Phase 4 until all flagged pairs are resolved. Record the resolution decision for each pair in the report.
-
-### PHASE 4: Summary & Outputs
-
-Present the full baseline using the table format from the Reference Example below.
-
-Then save the following files:
-
-1. **Markdown report** (`value_of_pains_report.md`) containing:
-   - Methodology section (formulas and parameter definitions).
-   - Summary table of all pains and gains with their metrics and potential values.
-   - Detailed item-by-item breakdown with assumption explanations and source citations for every parameter.
-   - Total potential value summary.
-
-2. **CSV file** (`value_of_pains.csv`) with columns:
-   `Item ID, Type (Pain/Gain), Description, Agent (Customer/Provider), Frequency (f_i), Impact (v_i), Potential Value (Annual)`
-
-3. **Bar chart** using the below Python Visualization Template that plots all items' Potential Values as a labeled bar chart (pains in red/coral, gains in green/teal), saving output as `value_of_pains.png`. Run the script after writing it.
+where $VG_{pot,i}$ = Potential Gain Value. Repeat until all selected gains have been quantified.
 
 ---
 
-## Output Formatting & Reference Example
+### PHASE 3b: Double-Counting Review
 
-**Scenario**: An IIoT service provider evaluating smart services for a machine operator.
+Before generating final outputs, identify potential economic double-counting.
 
-| Item # | Description | Type | Agent | Freq. ($f_i$) | Impact ($v_i$) | Potential Value (Annual) |
-|---|---|---|---|---|---|---|
-| **P1** | Missing info about current job | Pain | Customer | 25 | 50 € | 1'250 € |
-| | *Same pain* | Pain | Provider | 25 | 25 € | 625 € |
-| **P2** | Low machine performance due to worn parts | Pain | Customer | 50 | 100 € | 5'000 € |
-| **P3** | Machine breakdowns | Pain | Customer | 6 | 600 € | 3'600 € |
-| | *Same pain* | Pain | Provider | 6 | 1'000 € | 6'000 € |
-| **P4** | Cannot bill recurring revenue due to missing IT | Pain | Customer | 12 | 150 € | 1'800 € |
-| | *Same pain* | Pain | Provider | 12 | 100 € | 1'200 € |
-| **G1** | Predictable maintenance windows enabling production scheduling | Gain | Customer | 12 | 200 € | 2'400 € |
-| **G2** | Recurring revenue via subscription billing | Gain | Provider | 12 | 150 € | 1'800 € |
+#### Check Type 1: Pain–Gain Duplication
 
-**Total Annual Potential Value Summary**:
-- **Total Customer Pain Potential**: 11'650 €
-- **Total Provider Pain Potential**: 7'825 €
-- **Total Customer Gain Potential**: 2'400 €
-- **Total Provider Gain Potential**: 1'800 €
+Remove a gain if it largely describes the absence or reversal of an already-valued pain **and** both valuations use the same underlying cash flow. Flag a gain as `pain-gain-duplication` if there is partial overlap with pain cash flow.
+
+Example: Pain = "Unplanned downtime" / Gain = "No unplanned downtime", both valued via lost production hours.
+
+#### Check Type 2: Cross-Segment/Role Duplication
+
+Flag items where the same economic consequence is counted multiple times across customer segments or roles as `cross-segment-duplication`.
+
+Examples:
+- The same downtime loss attributed independently to two segment profiles.
+- Machine Operator and Plant Manager both assigned the exact same machine-downtime cost.
 
 ---
 
-## Python Visualization Template
+## 4. Output Format
+
+After all phases have been completed, produce the following outputs.
+
+### 1. Markdown Report
+
+File: `value_of_pains_report.md`
+
+Include:
+
+#### Methodology
+
+- Definitions of all variables
+- Calculation formulas
+- Assumptions and evidence rules
+
+#### Summary Table
+
+| Item # | Description | Type | Agent | Frequency ($f_i$) | Impact ($v_i$) | Annual Potential Value | Source(s) | Duplication Type | Duplication Item #s |
+|--------|-------------|------|-------|-------------------|----------------|----------------------|-----------|-----------------|---------------------|
+|        |             |      |       |                   |                |                      |           |                 |                     |
+
+#### Detailed Breakdown
+
+For every pain and gain:
+- Description, Agent, Frequency explanation, Impact explanation, Supporting evidence, Calculation
+
+#### Double-Counting Review
+
+Document flagged items, resolution decisions, and adjustments made.
+
+#### Aggregate Results
+
+- Total Pain Value (Customer)
+- Total Pain Value (Provider)
+- Total Gain Value (Customer)
+- Total Gain Value (Provider)
+
+---
+
+### 2. CSV Export
+
+File: `value_of_pains.csv`
+
+Columns:
+
+```text
+Item ID,
+Type,
+Description,
+Agent,
+Frequency (f_i),
+Impact (v_i),
+Potential Value (Annual)
+Duplication Type 
+Duplication Item #s 
+```
+
+---
+
+### 3. Visualization
+
+Create a bar chart using the Python Visualization Template from Section 6 (pains in red/coral, gains in green/teal, values labeled on bars). Save as `value_of_pains.png`. Run the script after generating the dataset.
+
+---
+
+## 5. Guardrails
+
+- **Mathematical Correctness:** All values must be annualized. Validate units and time horizons. Guarantee $\text{Potential Value} = f_i \times v_i$ for every item.
+- **Completeness:** Quantify all approved pains and gains. Evaluate Customer and Provider impacts separately; record `0` when a party has no relevant impact.
+- **Groundedness:** Never use unsupported numbers. Every parameter must include rationale and evidence or source. Mark as "assumption" if no evidence is available. Do not fabricate data.
+- **Non-Redundancy:** Eliminate economic double-counting across both duplication types (Pain–Gain and Cross-Segment/Role). Gains must represent additive value, not the financial reversal of an already-quantified pain.
+- **Transparency:** Clearly distinguish evidence, assumptions, user-provided estimates, and calculated values. Maintain full traceability from source inputs to final valuation results.
+
+---
+
+## 6. Python Visualization Template
 
 ```python
 !pip install matplotlib

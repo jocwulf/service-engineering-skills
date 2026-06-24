@@ -36,22 +36,18 @@ Output a segment list with a one-sentence rationale for why each is distinct to 
 For each identified segment, extract and label the following. Provide quotes from the input data for each jobs, pain and gain; infer only if requested by user and mark inferences with *(inferred)*.
 
 #### Customer Jobs
-Tasks the customer is trying to accomplish, obligations they must fulfill, or outcomes they are pursuing. Action-only, no evaluation (good: "create reports", invalid: "create reports quickly"). Classify each job:
+Tasks the customer is trying to accomplish. Action-only, no evaluation. **Mandate Holistic Job Diversity: You must identify and balance entries across all three dimensions for a complete profile:**
 - **Functional** (practical task or outcome)
 - **Social** (how they want to be perceived)
 - **Emotional** (how they want to feel)
 Label: `CJ1`, `CJ2`, ...
 
 #### Customer Pains
-Frustrations, risks, obstacles, and undesired outcomes the customer experiences before, during, or after trying to get their jobs done. Include:
-- Undesired outcomes (e.g. bad performance, frustration)
-- Obstacles (e.g. time, cost, skill barriers)
-- Risks (what could go wrong)
-Always use concrete thesholds (Good: “Reports take 2+ hours to compile”) instead of being value (Invalid: “Reports are inefficient”). 
+Frustrations, risks, obstacles, and undesired outcomes the customer experiences. 
 Label: `P1`, `P2`, ...
 
 #### Customer Gains
-Outcomes and benefits the customer desires — including expected outcomes, desired outcomes, and unexpected delighters. Apply the **Non-Redundant Gains Rule**: gains must not be opposites of pains. They must represent positive value beyond pain removal (e.g., not "less downtime" but "predictable maintenance windows that enable production scheduling"). Avoid gains with little added value. **Strictly describe measurable outcomes with thresholds (Good: "reduce downtime to 99%") and avoid descriptions of technical service features (Invalid: "predictive maintenance")**.
+Outcomes and benefits the customer desires. Avoid gains with marginal delineation from painss.. 
 Label: `G1`, `G2`, ...
 
 ### Step 3: Cross-Segment Validation
@@ -112,6 +108,33 @@ Save output to `jobs-pains-gains-output.md`.
 
 ## 5. Guardrails
 
+## 3. Execution Process
+
+### Step 1: Segment Identification
+... [Ihr Text bleibt gleich] ...
+
+### Step 2: Jobs-Pains-Gains Extraction per Segment
+For each identified segment, extract and label the following. Provide quotes from the input data; infer only if requested by user and mark inferences with *(inferred)*.
+
+#### Customer Jobs
+Tasks the customer is trying to accomplish. Action-only, no evaluation. **Mandate Holistic Job Diversity: You must identify and balance entries across all three dimensions for a complete profile:**
+- **Functional** (practical task or outcome)
+- **Social** (how they want to be perceived)
+- **Emotional** (how they want to feel)
+Label: `CJ1`, `CJ2`, ...
+
+#### Customer Pains
+Frustrations, risks, obstacles, and undesired outcomes the customer experiences. 
+Label: `P1`, `P2`, ...
+
+#### Customer Gains
+Outcomes and benefits the customer desires. Avoid gains with little added value. 
+Label: `G1`, `G2`, ...
+
+...
+
+## 5. Guardrails
+
 *   **Profile the Customer, Not the Product:** Describe functional, social, or emotional realities strictly from the customer's current state. Keep entries completely independent of any future software, features, or platforms.
     *   *Correct:* "Needs visibility into cross-team project statuses."
     *   *Incorrect:* "Needs an online dashboard."
@@ -131,23 +154,17 @@ Save output to `jobs-pains-gains-output.md`.
     *   *Correct:* **Job:** File annual income taxes. / **Pain:** Risk of penalties from manual data entry errors. / **Gain:** Processing completion time under 2 business days.
     *   *Incorrect:* "Job: File taxes quickly to avoid manual entry penalties."
 
-*   **Quantify Vague Phrasing:** Replace qualitative or subjective descriptions with measurable thresholds, mathematical boundaries, or explicit metrics.
+*   **Ban Subjective Modifiers:** Replace qualitative descriptions (*fast, slow, cheap, expensive, often, rarely*) with measurable thresholds, mathematical boundaries, or explicit metrics.
     *   *Correct:* "Waiting >15 minutes to generate a report feels like wasted time."
     *   *Incorrect:* "Waiting forever feels like wasted time."
 
-*   **Ban Subjective Modifiers:** Avoid non-specific modifiers (*fast, slow, cheap, expensive, often, rarely*) unless they are explicitly anchored to a specific number, percentage, or time-frame.
-
-*   **Mandate Holistic Job Diversity:** Balance profiles across three dimensions: Functional (task execution), Social (reputation/status), and Personal/Emotional (internal feelings/psychological safety).
+*   **Ensure Additive Value (Non-Redundant Gains):** Gains must represent positive, additive value beyond simple pain removal. A Gain must *never* be the inverse or positive rephrasing of a listed Pain.
+    *   *Correct:* **Pain:** High subscription cost exceeding $1,000/month. / **Gain:** Native integration with existing ERP.
+    *   *Incorrect:* **Pain:** System downtime. / **Gain:** No system downtime.
 
 *   **Prioritize High-Impact Nuance:** Document highly specific, non-obvious operational realities over generic observations. Avoid treating the user as a purely transactional execution machine.
-
-*   **Ensure Additive Value:** Gains must represent positive, additive value beyond simple pain removal. A Gain must *never* be the inverse or positive rephrasing of a listed Pain.
-    *   *Correct:* **Pain:** High subscription cost exceeding $1,000/month. / **Gain:** Native integration with existing ERP software.
-    *   *Incorrect:* **Pain:** High subscription cost. / **Gain:** Low subscription cost.
 
 *   **No Compression or Omission:** Do not compress or aggregate raw findings. Every individual job, pain, and gain identified in source data must be explicitly itemized as a standalone line item.
 
 *   **Target Density Guidelines:** Aim for an operational density of 15 to 30 items per segment profile to ensure depth. Never omit valid items to meet this target.
-
-*   **Explicit Inference Tagging:** Every entry that is not directly extracted from verified source data or interviews must be explicitly appended with the suffix `*(inferred)*`.
 
