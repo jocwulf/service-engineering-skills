@@ -439,59 +439,87 @@ Save all canvases to `value-proposition-canvases-output.md`. Each segment gets i
 Copy this code, fill in the `canvas` data structure, write it to `vpcanvas_render.py`, and run it.
 
 ```python
+!pip install matplotlib
+
 #!/usr/bin/env python3
-"""Value Proposition Canvas renderer — fill in `canvas` below, then run."""
+"""
+Value Proposition Canvas (matplotlib version)
+
+Install:
+    pip install matplotlib
+
+Run:
+    python vpcanvas.py
+"""
+
+import textwrap
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, Rectangle
-import textwrap
 
-# ═══════════════════════════════════════════════════════════════════════════
-#  CANVAS DATA — the executing agent fills in all items below before running
-# ═══════════════════════════════════════════════════════════════════════════
+# ============================================================================
+# CANVAS DATA
+# Agent fills only this structure.
+# ============================================================================
+
 canvas = {
     "segment": "Segment Name",
 
-    # Left side — Value Map
     "products_services": [
-        # noun-based feature names only
         {"id": "PS1", "label": "Feature Name"},
     ],
+
     "pain_relievers": [
-        # from_ps + relieves define the PS → PR → P path
-        {"id": "PR1", "label": "Reliever description", "from_ps": "PS1", "relieves": "P1"},
-    ],
-    "gain_creators": [
-        # from_ps + creates define the PS → GC → G path
-        {"id": "GC1", "label": "Creator description", "from_ps": "PS1", "creates": "G1"},
+        {
+            "id": "PR1",
+            "label": "Reliever description",
+            "from_ps": "PS1",
+            "relieves": "P1",
+        },
     ],
 
-    # Right side — Customer Profile
+    "gain_creators": [
+        {
+            "id": "GC1",
+            "label": "Creator description",
+            "from_ps": "PS1",
+            "creates": "G1",
+        },
+    ],
+
     "pains": [
-        # linked_job completes the P → CJ connection
-        {"id": "P1", "label": "Pain description", "linked_job": "CJ1"},
+        {
+            "id": "P1",
+            "label": "Pain description",
+            "linked_job": "CJ1",
+        },
     ],
+
     "gains": [
-        # linked_job completes the G → CJ connection
-        {"id": "G1", "label": "Gain description", "linked_job": "CJ1"},
+        {
+            "id": "G1",
+            "label": "Gain description",
+            "linked_job": "CJ1",
+        },
     ],
+
     "jobs": [
         {"id": "CJ1", "label": "Job description"},
     ],
 }
-# ═══════════════════════════════════════════════════════════════════════════
 
+# ============================================================================
 
 NODE_FILL = "#1b365d"
 NODE_TEXT = "#ffffff"
 BORDER    = "#000000"
 NODE_W    = 2.2
 NODE_H    = 0.62
-ROW_SPC   = 1.05   # vertical distance between node centers
-SEC_GAP   = 1.1    # vertical gap between pain and gain sections
-PAD       = 0.9    # outer padding
-COL_X     = [1.5, 4.4, 7.3, 10.2]   # x-centers: PS | PR/GC | P/G | CJ
+ROW_SPC   = 1.05
+SEC_GAP   = 1.4
+PAD       = 1.1
+COL_X     = [1.5, 4.5, 8.3, 11.3]
 
 
 def _label(item):
@@ -520,7 +548,6 @@ def _box(ax, x1, y1, x2, y2, label=None, lw=2):
 
 
 def _arrow(ax, src, dst):
-    """Arrow from right edge of src to left edge of dst."""
     ax.annotate(
         "", xy=(dst[0] - NODE_W / 2, dst[1]),
         xytext=(src[0] + NODE_W / 2, src[1]),
@@ -536,15 +563,18 @@ def render(canvas, output="vpcanvas.png"):
         canvas["gains"],             canvas["jobs"],
     )
 
-    pain_rows = max(len(prs), len(pins), 1)
-    gain_rows = max(len(gcs), len(gins), 1)
-
-    # y increases upward; gain section at bottom, pain section above it
+    gain_rows     = max(len(gcs), len(gins), 1)
     gain_bottom_y = PAD
     gain_top_y    = gain_bottom_y + (gain_rows - 1) * ROW_SPC
-    pain_bottom_y = gain_top_y + SEC_GAP
-    pain_top_y    = pain_bottom_y + (pain_rows - 1) * ROW_SPC
-    content_mid   = (gain_bottom_y + pain_top_y) / 2
+
+    if prs or pins:
+        pain_rows     = max(len(prs), len(pins), 1)
+        pain_bottom_y = gain_top_y + SEC_GAP
+        pain_top_y    = pain_bottom_y + (pain_rows - 1) * ROW_SPC
+    else:
+        pain_top_y = gain_top_y
+
+    content_mid = (gain_bottom_y + pain_top_y) / 2
 
     pos = {}
     for i, n in enumerate(prs):
@@ -558,8 +588,10 @@ def render(canvas, output="vpcanvas.png"):
     for i, n in enumerate(ps):
         y0 = content_mid + (len(ps) - 1) / 2 * ROW_SPC
         pos[n["id"]] = (COL_X[0], y0 - i * ROW_SPC)
+    pg_ys = [pos[n["id"]][1] for n in pins + gins if n["id"] in pos]
+    pg_mid = (min(pg_ys) + max(pg_ys)) / 2 if pg_ys else content_mid
     for i, n in enumerate(jobs):
-        y0 = content_mid + (len(jobs) - 1) / 2 * ROW_SPC
+        y0 = pg_mid + (len(jobs) - 1) / 2 * ROW_SPC
         pos[n["id"]] = (COL_X[3], y0 - i * ROW_SPC)
 
     fig_h = pain_top_y + NODE_H / 2 + PAD + 1.4
@@ -597,16 +629,21 @@ def render(canvas, output="vpcanvas.png"):
 
     vm_keys = ("Products & Services", "Pain Relievers", "Gain Creators")
     cp_keys = ("Pains", "Gains", "Customer Jobs")
-    outer_sp = sp + 0.18
+    outer_sp   = sp + 0.18
+    boundary_x = (COL_X[1] + COL_X[2]) / 2
+    half_gap   = 0.12
     for keys, lbl in [(vm_keys, "Value Map"), (cp_keys, "Customer Profile")]:
         group = [boxes[k] for k in keys if boxes.get(k)]
         if group:
-            _box(ax,
-                 min(b[0] for b in group) - outer_sp,
-                 min(b[1] for b in group) - outer_sp,
-                 max(b[2] for b in group) + outer_sp,
-                 max(b[3] for b in group) + outer_sp,
-                 label=lbl, lw=2)
+            x1 = min(b[0] for b in group) - outer_sp
+            y1 = min(b[1] for b in group) - outer_sp
+            x2 = max(b[2] for b in group) + outer_sp
+            y2 = max(b[3] for b in group) + outer_sp
+            if lbl == "Value Map":
+                x2 = min(x2, boundary_x - half_gap)
+            else:
+                x1 = max(x1, boundary_x + half_gap)
+            _box(ax, x1, y1, x2, y2, label=lbl, lw=2)
 
     for grp in (ps, prs, gcs, pins, gins, jobs):
         for n in grp:
@@ -636,8 +673,15 @@ def render(canvas, output="vpcanvas.png"):
 
 
 if __name__ == "__main__":
-    import sys
-    slug = canvas["segment"].lower().replace(" ", "_")
-    out  = sys.argv[1] if len(sys.argv) > 1 else f"vpcanvas_{slug}.png"
-    render(canvas, out)
+    slug = (
+        canvas["segment"]
+        .lower()
+        .replace(" ", "_")
+        .replace("/", "_")
+        .replace("(", "")
+        .replace(")", "")
+        .replace("—", "")
+        .strip("_")
+    )
+    render(canvas, f"vpcanvas_{slug}.png")
 ```
