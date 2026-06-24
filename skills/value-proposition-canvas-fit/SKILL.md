@@ -1,70 +1,406 @@
 ---
 name: value-proposition-canvas-fit
-description: "Create one Value Proposition Canvas per customer segment — with end-to-end Mermaid flows (Feature → PR/GC → Pain/Gain → Job) styled in dark blue/black — from jobs-pains-gains profiles and an envisioned feature set."
+description: "Create one Value Proposition Canvas per customer segment by selecting the highest-value features from a coherent feature bundle and mapping them through complete causal chains (PS → PR/GC → P/G → CJ)."
 license: MIT
 metadata:
   author: jocwulf
-  version: 2.0.0
+  version: 3.1.0
 ---
 
 # value-proposition-canvas-fit — Multi-Segment Value Proposition Canvas Designer
 
-> Map envisioned features to customer needs across all relevant segments, producing one fully visualized Value Proposition Canvas per segment with strict end-to-end Mermaid flows.
+> Transform a coherent feature bundle into a focused value proposition by selecting the highest-value features and creating one complete Value Proposition Canvas per customer segment with end-to-end flows.
 
-## 1. Skill Purpose
+# 1. Skill Purpose
 
-You are a value proposition design expert. Given a set of customer segment profiles (Jobs, Pains, Gains) and a description of envisioned features, you produce one complete Value Proposition Canvas per segment — structured text profile plus a Mermaid connection diagram — and assess fit quality for each.
+You are a Value Proposition Design expert.
 
-## 2. Required Inputs
+Given:
 
-Ask for any missing inputs before proceeding:
+- customer segment profiles containing Jobs, Pains, and Gains
+- monetary valuations of pains and gains
+- a coherent bundle of envisioned service features
 
-- `Segment_Profiles`: Jobs-Pains-Gains profiles for all relevant customer segments. Accept output from the `jobs-pains-gains` skill directly, or prompt the user to provide segment descriptions manually.
-- `Feature_Set`: The envisioned service features to map. Accept output from the `smart-service-ideation` skill (Technical Synergy Bundles), or prompt the user to describe the planned features.
+you must:
 
-## 3. Execution Process
+1. Select the subset of features with the highest customer value potential.
+2. Construct one Value Proposition Canvas per customer segment.
+3. Explicitly map causal relationships from Products & Services through Pain Relievers and Gain Creators to customer needs.
+4. Assess fit quality at segment level and across segments.
 
-### Step 1: Input Consolidation
+The objective is not maximum feature coverage.
 
-List all segments from `Segment_Profiles` and all features from `Feature_Set`. Ask the user whether any segments or features should be excluded. Do NOT proceed without user approval.
+The objective is to identify the smallest coherent set of features capable of delivering the strongest customer value.
 
-### Step 2: Per-Segment Canvas Mapping
+# 2. Required Inputs
 
-For each segment, perform the following mapping independently.
+Request any missing inputs before proceeding.
 
-#### 2a. Customer Profile (Right Side)
+## Required Input A – Segment_Profiles
 
-Transcribe the segment's jobs, pains, and gains using IDs from the source profile:
-- **CJ (Customer Jobs):** `CJ1`, `CJ2`, ...
-- **P (Customer Pains):** `P1`, `P2`, ...
-- **G (Customer Gains):** `G1`, `G2`, ... — verify gains satisfy the **Non-Redundant Gains Rule** (gains must not be simple opposites of pains).
+Customer segment profiles containing:
 
-#### 2b. Value Map (Left Side)
+- Customer Jobs
+- Customer Pains
+- Customer Gains
+- Pain Values
+- Gain Values
 
-For each feature in `Feature_Set`, assess relevance to this segment and assign:
-- **PS (Products & Services):** Features MUST be noun-based (Good: “Analytics dashboard”) and MUST NOT describe effects or outcomes (Invalid: “Time-saving dashboard”). Labels: `PS1`, `PS2`, ...
-- **PR (Pain Relievers):** Structure: “[name]: Reduces/eliminates [pain] by [causal mechanism].” At least one PR per PS→Pain connection. Labels: `PR1`, `PR2`, ...
-- **GC (Gain Creators):** Structure: “[name]: Enables/increases [gain] by [causal mechanism].” At least one GC per PS→Gain connection. Labels: `GC1`, `GC2`, ...
+Accept:
 
-Not every feature needs to appear in every segment canvas — only include features with a meaningful connection.
+- output from the jobs-pains-gains skill
+- output from pain/gain valuation analysis
+- manually provided segment descriptions
 
-#### 2c. Fit Assessment
+Pain and gain valuations should be expressed in monetary terms whenever available.
 
-After mapping, score the fit for this segment:
-- **Coverage:** What percentage of the segment's pains and gains are addressed?
-- **Gaps:** List any pains or gains with no corresponding PR or GC.
-- **Fit Rating:** Strong / Moderate / Weak, with a one-sentence justification.
+---
 
-### Step 3: End-to-End Connection Rules
+## Required Input B – Feature_Set
 
-All connections in the `canvas` data structure **must** follow one of two complete paths:
+A coherent bundle of envisioned features.
 
-- **Pain path:** `PS (from_ps) → PR → P (relieves) → CJ (linked_job)`
-- **Gain path:** `PS (from_ps) → GC → G (creates) → CJ (linked_job)`
+Accept:
 
-**Shortcut Rule:** Every Pain Reliever must carry both `from_ps` and `relieves`. Every Gain Creator must carry both `from_ps` and `creates`. Every Pain and Gain must carry `linked_job`. No direct PS → CJ connections are permitted.
+- output from smart-service-ideation
+- manually described features
 
-## 4. Python Visualization
+The Feature_Set may contain significantly more features than will ultimately appear in the Value Proposition Canvas.
+
+# 3. Execution Process
+
+## Step 1 – Input Consolidation
+
+List:
+
+- all customer segments
+- all candidate features
+
+Ask the user whether any segments or candidate features should be excluded.
+
+Do not proceed without approval.
+
+---
+
+## Step 2 – Feature Portfolio Selection
+
+### Purpose
+
+The Feature_Set represents a coherent opportunity space.
+
+However, an effective value proposition should focus on the features that create the greatest customer value.
+
+Before building any canvas, identify the most valuable subset of features.
+
+### Step 2a – Candidate Feature Inventory
+
+Assign temporary IDs:
+
+| ID | Candidate Feature |
+|------|------|
+| FPS1 | ... |
+| FPS2 | ... |
+
+(FPS = Feature Portfolio Selection)
+
+List all features from the input bundle.
+
+---
+
+### Step 2b – Feature Assessment
+
+Evaluate every candidate feature against:
+
+#### Economic Impact
+
+Estimate the total customer value potentially influenced by the feature.
+
+Calculate:
+
+```text
+Economic Impact =
+Σ Pain Values Addressed
++
+Σ Gain Values Created
+```
+
+Use the monetary valuations contained in the customer profiles.
+
+---
+
+#### Segment Reach
+
+How many relevant customer segments benefit from the feature?
+
+Report:
+
+```text
+1 Segment
+2 Segments
+3 Segments
+...
+```
+
+---
+
+#### Dependency Leverage
+
+Does the feature enable or strengthen other valuable features?
+
+Assess:
+
+- High: Majority of other features depend on it.
+- Medium: Some others depend on it.
+- Low: No enablement of other features.
+
+---
+
+### Step 2c – Feature Selection
+
+Select between:
+
+- minimum 6 features
+- maximum 10 features
+
+Default target:
+
+- 8 features
+
+Selection should maximize:
+
+- addressed pain and gain value
+- cross-segment value creation
+- dependency leverage
+
+while minimizing redundancy
+
+---
+
+### Step 2d – Feature Dependency Check
+
+A feature with lower direct economic impact may be retained when it is required to enable higher-value features.
+
+---
+
+### Step 2e – Portfolio Assessment
+
+Produce:
+
+#### Selected Features
+
+| ID | Feature | Key Pains Addressed | Key Gains Created | Economic Impact | Selection Rationale |
+|------|------|------|------|------|------|
+| PS1 | ... | P1, P3 | G2 | CHF ... | ... |
+
+---
+
+#### Excluded Features
+
+| Feature | Reason Excluded |
+|------|------|
+| ... | ... |
+
+---
+
+#### Portfolio Quality Assessment
+
+Assess:
+
+- Focus
+- Cross-Segment Relevance
+- Customer Value Concentration
+- Dependency Coherence
+
+Provide:
+
+**Portfolio Rating:** Strong / Moderate / Weak
+
+with a one-sentence explanation.
+
+---
+
+## Step 3 – Per-Segment Canvas Mapping
+
+Perform all remaining steps independently for each segment.
+
+### Step 3a – Customer Profile
+
+#### Customer Jobs
+
+Labels:
+
+- CJ1
+- CJ2
+- ...
+
+| ID | Description | Type |
+|------|------|------|
+| CJ1 | ... | Functional |
+
+---
+
+#### Customer Pains
+
+Labels:
+
+- P1
+- P2
+- ...
+
+| ID | Description | Estimated Annual Value |
+|------|------|------|
+| P1 | ... | CHF ... |
+
+---
+
+#### Customer Gains
+
+Labels:
+
+- G1
+- G2
+- ...
+
+| ID | Description | Estimated Annual Value |
+|------|------|------|
+| G1 | ... | CHF ... |
+
+---
+
+### Step 3b – Value Map
+
+Only utilize features selected during Step 2.
+
+#### Products & Services
+
+Labels:
+
+- PS1
+- PS2
+- ...
+
+| ID | Feature Name | Description |
+|------|------|------|
+| PS1 | ... | ... |
+
+---
+
+#### Pain Relievers
+
+Labels:
+
+- PR1
+- PR2
+- ...
+
+| ID | How It Relieves | Addresses |
+|------|------|------|
+| PR1 | ... | P1 |
+
+---
+
+#### Gain Creators
+
+Labels:
+
+- GC1
+- GC2
+- ...
+
+| ID | How It Creates Gain | Addresses |
+|------|------|------|
+| GC1 | ... | G1 |
+
+---
+
+### Causal Validity Rule
+
+Every Pain Reliever and Gain Creator must specify:
+
+1. Customer Outcome (reduces pain or enables gain)
+2. Intermediate Effect with measurable Thresholds
+3. Causal Mechanism
+
+Reject:
+
+- circular explanations
+- restatements
+- unsupported claims
+
+---
+
+## Step 4 – Fit Assessment
+
+Assess each segment independently.
+
+### Coverage
+
+Report:
+
+- X of Y pains addressed
+- X of Y gains addressed
+
+---
+
+### Economic Coverage
+
+Calculate and report:
+
+- Total Pain Value Addressed
+- Total Pain Value Unaddressed
+- Total Gain Value Enabled
+- Total Gain Value Not Enabled
+
+Express both absolute values and percentages.
+
+Example:
+
+```text
+Pain Value Addressed:
+CHF 1.2M of CHF 1.5M (80%)
+
+Gain Value Enabled:
+CHF 900k of CHF 1.1M (82%)
+```
+
+---
+
+## Step 5 – End-to-End Connection Rules
+
+All value proposition canvas connections must follow one of the following paths.
+
+### Pain Path
+
+```text
+PS → PR → P → CJ
+```
+
+### Gain Path
+
+```text
+PS → GC → G → CJ
+```
+
+### Shortcut Rule
+
+Forbidden:
+
+```text
+PS → CJ
+PS → P
+PS → G
+PR → CJ
+GC → CJ
+```
+
+Every relationship must pass through:
+
+- a PR or GC
+- a Pain or Gain
+
+before reaching a Customer Job.
+
+# 4. Python Visualization
 
 For each segment canvas, generate a PNG using the Python renderer defined in **§ 7. Python Renderer**:
 
@@ -73,83 +409,32 @@ For each segment canvas, generate a PNG using the Python renderer defined in **�
 3. Write it to `vpcanvas_render.py` and run: `python vpcanvas_render.py vpcanvas_[segment_slug].png`
 4. Embed the result in the output file as: `![Canvas: Segment Name](vpcanvas_[segment_slug].png)`
 
-## 5. Output Format
+# 5. Output Format
 
-Save all canvases to `value-proposition-canvases-output.md`. Each segment gets its own titled section. Generate `vpcanvas_[segment_slug].png` for each segment using the Python renderer in § 7.
+Save all canvases to `value-proposition-canvases-output.md`. Each segment gets its own titled section. Generate `vpcanvas_[segment_slug].png` for each segment using the Python renderer in § 7. Include all content from 3.3 to 3.5.
 
----
+# 6. Guardrails
 
-### Canvas: [Segment Name]
+## Portfolio Selection Guardrails
 
-**Fit Rating:** [Strong / Moderate / Weak] — [one-sentence justification]
-**Coverage:** [X of Y pains addressed], [X of Y gains addressed]
-**Gaps:** [List uncovered pains/gains, or "None"]
+- Select 6–10 features before canvas construction.
+- Use only selected features in subsequent mapping.
+- Prioritize economic value over feature quantity.
+- Base feature selection on quantified pain and gain values.
+- Justify all excluded features.
+- Retain enabling features when dependency relationships require them.
 
----
+## Mapping Guardrails
 
-#### Customer Profile
+- Create one canvas per segment.
+- Do not merge segments.
+- Every connection must follow:
+  PS → PR/GC → P/G → CJ.
+- Every PR and GC must satisfy the Causal Validity Rule.
+- Maintain conceptual separation between Products & Services, Pain Relievers, and Gain Creators: P&S MUST be noun-based (Good: “Analytics dashboard”) and MUST NOT describe effects or outcomes (Invalid: “Time-saving dashboard”). Pains and gains: Reduces/enables [pain/gain] leading to [intermediate measureable effect] by [causal mechanism].
+- Do not include a selected feature in a segment unless a meaningful causal connection exists.
 
-**Customer Jobs**
-| ID | Description | Type |
-|----|-------------|------|
-| CJ1 | ... | Functional |
-
-**Customer Pains**
-| ID | Description |
-|----|-------------|
-| P1 | ... |
-
-**Customer Gains**
-| ID | Description |
-|----|-------------|
-| G1 | ... |
-
----
-
-#### Value Map
-
-**Products & Services**
-| ID | Feature Name | Description |
-|----|-------------|-------------|
-| PS1 | ... | ... |
-
-**Pain Relievers**
-| ID | How It Relieves | Addresses |
-|----|----------------|-----------|
-| PR1 | ... | P1 |
-
-**Gain Creators**
-| ID | How It Creates Gain | Addresses |
-|----|--------------------|-----------| 
-| GC1 | ... | G1 |
-
----
-
-#### Canvas Visualization
-
-![Canvas: [Segment Name]](vpcanvas_[segment_slug].png)
-
----
-
-*(Repeat for each segment)*
-
----
-
-### Cross-Segment Fit Summary
-
-| Segment | Fit Rating | Pains Covered | Gains Covered | Key Gap |
-|---------|-----------|--------------|--------------|---------|
-| [Name] | Strong | 4/5 | 3/4 | G4 unaddressed |
-
-## 6. Guardrails
-
-- Produce one complete canvas per segment — do not merge segments.
-- Every connection in the canvas data structure must follow the full path: PS → PR/GC → P/G → CJ. No shortcuts.
-- Gains must satisfy the Non-Redundant Gains Rule: they must not be simple opposites of pains.
-- Do not include features in a segment canvas unless there is a meaningful, explainable connection.
-- Do not compress, omit, or use placeholders — all tables and diagrams must be fully populated.
-
-## 7. Python Renderer
+# 7. Python Renderer
 
 Copy this code, fill in the `canvas` data structure, write it to `vpcanvas_render.py`, and run it.
 
