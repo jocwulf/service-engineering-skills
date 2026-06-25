@@ -51,7 +51,8 @@ You will use a programmatic node-and-edge notation:
 - **Total Connectivity:** All activities in the blueprint must be initiated by or initiate another activity. There can be no "orphan" or disconnected activities.
 - **Customer Activity Connectivity:** Use direct connections between all customer activities to show logical flow of customer activities within and across phases.
 - **Top-Down / Bottom-Up Flow:** Each customer activity at the top must initiate a downstream activity (Frontstage, Backstage, or Support) OR must be initiated by a downstream activity.
-- **Products & Services Mapping:** Each product or service must be referenced in the physical / digital evidence layer.
+- **Completeness:** Each product or service from the VPC must be referenced in the physical / digital evidence layer. Similarly, each affected job from the VPC must be referenced in the customer actions layer.
+
 
 
 ## 6. Python Script Image Generation
