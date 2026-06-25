@@ -540,6 +540,7 @@ def _box(ax, x1, y1, x2, y2, label=None, lw=2):
     ax.add_patch(Rectangle(
         (x1, y1), x2 - x1, y2 - y1,
         facecolor="none", edgecolor=BORDER, linewidth=lw, zorder=1,
+        clip_on=False,
     ))
     if label:
         ax.text((x1 + x2) / 2, y2 + 0.1, label,

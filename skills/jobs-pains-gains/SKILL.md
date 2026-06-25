@@ -108,33 +108,6 @@ Save output to `jobs-pains-gains-output.md`.
 
 ## 5. Guardrails
 
-## 3. Execution Process
-
-### Step 1: Segment Identification
-... [Ihr Text bleibt gleich] ...
-
-### Step 2: Jobs-Pains-Gains Extraction per Segment
-For each identified segment, extract and label the following. Provide quotes from the input data; infer only if requested by user and mark inferences with *(inferred)*.
-
-#### Customer Jobs
-Tasks the customer is trying to accomplish. Action-only, no evaluation. **Mandate Holistic Job Diversity: You must identify and balance entries across all three dimensions for a complete profile:**
-- **Functional** (practical task or outcome)
-- **Social** (how they want to be perceived)
-- **Emotional** (how they want to feel)
-Label: `CJ1`, `CJ2`, ...
-
-#### Customer Pains
-Frustrations, risks, obstacles, and undesired outcomes the customer experiences. 
-Label: `P1`, `P2`, ...
-
-#### Customer Gains
-Outcomes and benefits the customer desires. Avoid gains with little added value. 
-Label: `G1`, `G2`, ...
-
-...
-
-## 5. Guardrails
-
 *   **Profile the Customer, Not the Product:** Describe functional, social, or emotional realities strictly from the customer's current state. Keep entries completely independent of any future software, features, or platforms.
     *   *Correct:* "Needs visibility into cross-team project statuses."
     *   *Incorrect:* "Needs an online dashboard."
