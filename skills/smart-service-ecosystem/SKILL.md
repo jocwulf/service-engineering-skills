@@ -72,7 +72,8 @@ Identify all institutions that directly or indirectly contribute to value creati
 - Regulators / government
 - Infrastructure providers
 - Support / service operators (e.g., maintenance, support)
-
+- Competitors
+- Customer's customers (if B2B2C)
 ---
 
 ### Step 3: Role Definition
@@ -173,52 +174,70 @@ For each institution:
 
 ```python
 #!/usr/bin/env python3
-"""Render the service ecosystem Mermaid diagram to an image via the mermaid.ink API.
+"""Render the service ecosystem Mermaid diagram to a high-resolution PNG.
 
-Paste the MERMAID_CHART value produced by the service-ecosystem skill, then run:
+Rendered locally via mmdc (mermaid-js CLI) at 3× scale.
+
+Paste the MERMAID_CHART value, then run:
     python service-ecosystem.py
-    python service-ecosystem.py -o ecosystem.svg --format svg --theme dark
+    python service-ecosystem.py -o ecosystem.png --theme dark
 """
 
 import argparse
-import base64
-import json
+import subprocess
 import sys
-import urllib.request
+import tempfile
 from pathlib import Path
 
 
 MERMAID_CHART = """
+%%{init: {"themeVariables": {"edgeLabelBackground": "#c55a00"}, "flowchart": {"rankSpacing": 200, "nodeSpacing": 70, "padding": 20, "curve": "basis", "defaultRenderer": "elk"}, "themeCSS": ".cluster-label text, .cluster-label span { font-weight: bold !important; } .edgeLabel .label, .edgeLabel .label span, .edgeLabel text { color: white !important; fill: white !important; }"}}%%
 graph LR
+    classDef actor fill:#1b365d,color:#ffffff,stroke:#0d1f3c
+
     subgraph Customer
-        R1[User]
+        R1["R1 · User"]
     end
 
     subgraph Provider
-        R2[Service Platform]
+        R2["R2 · Service Platform"]
     end
 
-    R1 -->|€9.99/month| R2
-    R2 -->|Service access via mobile app| R1
+    R1 -->|"€9.99/month"| R2
+    R2 -->|"Service access via mobile app"| R1
+
+    class R1,R2 actor
+
+    style Customer fill:#ebebeb,stroke:#888
+    style Provider fill:#ebebeb,stroke:#888
 """
 
 
-def render_via_api(mermaid_code: str, output_path: Path, theme: str) -> None:
-    graph_config = {"code": mermaid_code, "options": {"theme": theme}}
-    base64_string = base64.b64encode(json.dumps(graph_config).encode("utf-8")).decode("utf-8")
-
-    fmt = output_path.suffix.lstrip(".")
-    if fmt == "pdf":
-        fmt = "png"
-        output_path = output_path.with_suffix(".png")
-
-    url = f"https://mermaid.ink/{fmt}/{base64_string}"
-    print("Sending request to mermaid.ink API...")
+def render_png_mmdc(mermaid_code: str, output_path: Path, theme: str) -> None:
+    with tempfile.NamedTemporaryFile(suffix=".mmd", mode="w", delete=False) as f:
+        f.write(mermaid_code)
+        tmp_in = Path(f.name)
+    print("Rendering PNG via mmdc (3× scale, 3000 px wide)…")
     try:
-        with urllib.request.urlopen(url) as response:
-            output_path.write_bytes(response.read())
-    except Exception as e:
-        sys.exit(f"API rendering failed: {e}")
+        result = subprocess.run(
+            [
+                "mmdc",
+                "-i", str(tmp_in),
+                "-o", str(output_path),
+                "-t", theme,
+                "-b", "white",
+                "-w", "3000",
+                "-H", "2000",
+                "-s", "3",
+                "-q",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            sys.exit(f"mmdc failed:\n{result.stderr}")
+    finally:
+        tmp_in.unlink(missing_ok=True)
 
 
 def main() -> None:
@@ -226,21 +245,15 @@ def main() -> None:
         sys.exit("error: MERMAID_CHART is empty — paste the chart value into this file first")
 
     parser = argparse.ArgumentParser(
-        description="Render the MERMAID_CHART variable to an image via mermaid.ink",
+        description="Render the MERMAID_CHART variable to a PNG via mmdc",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   %(prog)s
-  %(prog)s -o ecosystem.svg --format svg --theme dark
+  %(prog)s -o ecosystem.png --theme dark
 """,
     )
-    parser.add_argument("-o", "--output", help="Output file path (default: service_ecosystem.<format>)")
-    parser.add_argument(
-        "--format",
-        default="png",
-        choices=["png", "svg"],
-        help="Output image format (default: png)",
-    )
+    parser.add_argument("-o", "--output", help="Output file path (default: service_ecosystem.png)")
     parser.add_argument(
         "--theme",
         default="default",
@@ -249,10 +262,10 @@ Examples:
     )
     args = parser.parse_args()
 
-    output_path = Path(args.output) if args.output else Path(f"service_ecosystem.{args.format}")
+    output_path = Path(args.output) if args.output else Path("service_ecosystem.png")
 
-    print(f"Rendering → {output_path}  (theme={args.theme}, format={args.format})")
-    render_via_api(MERMAID_CHART, output_path, args.theme)
+    print(f"Rendering → {output_path}  (theme={args.theme})")
+    render_png_mmdc(MERMAID_CHART, output_path, args.theme)
     print(f"Saved {output_path.stat().st_size:,} bytes to {output_path}")
 
 

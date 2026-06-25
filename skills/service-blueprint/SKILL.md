@@ -5,30 +5,19 @@ description: Synthesize a Service Blueprint matrix from a Value Proposition Canv
 
 # Service Blueprint Generator
 
-You are an expert in service design and systems-level experience mapping. 
+## 1. Skill Purpose
 
-## What You Do
-
-You create service blueprints that reveal how value is delivered across all channels and actors. You will synthesize the operational lifecycle directly from the Customer Segment's Value Proposition Canvas (VPC) and the selected products/services. 
+You are an expert in service design and systems-level experience mapping. You create service blueprints that reveal how value is delivered across all channels and actors. You will synthesize the operational lifecycle directly from the Customer Segment's Value Proposition Canvas (VPC) and the selected products/services. 
 
 You will use the provided python script and embed your synthesized data directly into it to render an image of the blueprint grid, and finally, author a comprehensive markdown report detailing the interactions.
 
-## Advanced Notation & Flow Routing
+## 2. Required Inputs
+- Full Value Proposition Canvas
+- Selected Products & Services (features) to be mapped in the blueprint
+- User Segment to be modeled (from the VPC)
+**DO NOT proceed without the selected products/services and user segment provided by the user.**
 
-Service blueprints require explicit visualization of triggers, dependencies, and feedback loops. 
-You will use a programmatic node-and-edge notation:
-1. Assign a short, unique `id` to every activity.
-2. Use the `connections` array in the embedded data to define the flow (e.g., `from: "id1", to: "id2"`). The Python script will calculate spatial relationships and draw paths with arrowheads between the boxes, seamlessly crossing multiple layers or jumping over subsequent phases.
-
-## Core Rules of Activity Flow
-
-- **Do Not Predefine Phases:** You must deduce and dynamically name the phases (as many as necessary) based purely on the logical adoption, usage, and retention lifecycle of the specific product/service. Each phase must cover multiple activities across the layers, but there is no fixed number of phases.
-- **Total Connectivity:** All activities in the blueprint must be initiated by or initiate another activity. There can be no "orphan" or disconnected activities.
-- **Customer Activity Connectivity:** Use direct connections between all customer activities to show logical flow of customer activities within and across phases.
-- **Top-Down / Bottom-Up Flow:** Each customer activity at the top must initiate a downstream activity (Frontstage, Backstage, or Support) OR must be initiated by a downstream activity.
-- **Products & Services Mapping:** Each product or service must be referenced in the physical / digital evidence layer.
-
-## Process
+## 3. Execution Process
 
 1. **Analyze Inputs:** Review the provided Value Proposition Canvas (Jobs, Pains, Gains) and the selected Products & Services.
 2. **Synthesize the Blueprint Matrix:** Map out the 5 standard layers: Physical / Digital Evidence, Customer Actions, Frontstage Actions, Backstage Actions, and Support Processes.
@@ -40,7 +29,32 @@ You will use a programmatic node-and-edge notation:
 - Explicitly document how each activity interacts with others based on your connection mappings (e.g., "Customer action A triggers Frontstage action B...").
 - Summarize how the Backstage and Support processes relate to Procuts & Services and directly resolve specific Pains and Gains from the VPC.
 
-## Python Script Image Generation
+## 4. Output Format
+
+### Blueprint MD Report
+Provide a detailed markdown report named `service-blueprint.md`. Use tables for structuring. Include:
+- A title and brief description of the blueprint.
+- A phase-by-phase breakdown of the blueprint, describing each activity and its role in the service delivery.
+- Explicitly document how each activity interacts with others based on your connection mappings (e.g., "Customer action A triggers Frontstage action B...").
+- Summarize how the Backstage and Support processes relate to Products & Services and directly resolve specific Pains and Gains from the VPC
+
+### Blueprint Image
+Service blueprints require explicit visualization of triggers, dependencies, and feedback loops. 
+You will use a programmatic node-and-edge notation:
+1. Assign a short, unique `id` to every activity.
+2. Use the `connections` array in the embedded data to define the flow (e.g., `from: "id1", to: "id2"`). The Python script will calculate spatial relationships and draw paths with arrowheads between the boxes, seamlessly crossing multiple layers or jumping over subsequent phases.
+3. Execute the python script to generate a PNG image of the blueprint`blueprint.png`.
+
+## 5. Guardrails
+
+- **Do Not Predefine Phases:** You must deduce and dynamically name the phases (as many as necessary) based purely on the logical adoption, usage, and retention lifecycle of the specific product/service. Each phase must cover multiple activities across the layers, but there is no fixed number of phases.
+- **Total Connectivity:** All activities in the blueprint must be initiated by or initiate another activity. There can be no "orphan" or disconnected activities.
+- **Customer Activity Connectivity:** Use direct connections between all customer activities to show logical flow of customer activities within and across phases.
+- **Top-Down / Bottom-Up Flow:** Each customer activity at the top must initiate a downstream activity (Frontstage, Backstage, or Support) OR must be initiated by a downstream activity.
+- **Products & Services Mapping:** Each product or service must be referenced in the physical / digital evidence layer.
+
+
+## 6. Python Script Image Generation
 
 ```python
 #!/usr/bin/env python3
