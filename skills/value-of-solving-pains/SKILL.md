@@ -1,6 +1,6 @@
 ---
 name: value-of-solving-pains
-description: "Calculate the effective economic value delivered per smart service bundle by applying alleviation and gain-achievement factors (ω_i) to the pain/gain baseline. Produces value-based pricing recommendations per service."
+description: "Calculate the effective economic value delivered per product or service by applying alleviation and gain-achievement factors (ω_i) to the pain/gain baseline. Produces value-based pricing recommendations per service."
 version: 2.0.0
 author: jocwulf
 license: MIT
@@ -18,17 +18,17 @@ Ask for any missing inputs before proceeding:
 
 - `Pain_Gain_Baseline`: Quantified potential values ($VP_{pot,i}$, $VG_{pot,i}$) for all pains and gains, including frequency ($f_i$) and impact ($v_i$). Accept output from the `value-of-pains` skill directly, or ask the user to provide these values manually.
 - `VPC_Fit`: Value Proposition Canvases mapping features to pains (via Pain Relievers, PR) and gains (via Gain Creators, GC). Accept output from the `value-proposition-canvas-fit` skill.
-- A specifification of the products and services from the Value Proposition Canvases to be covered.
+- A specification of the products and services from the Value Proposition Canvases to be covered.
 
 ## 3. Execution Process
 
 Strictly follow these sequential phases. **Do not move to the next phase until the user has confirmed the current one.**
 
-### PHASE 1: Input Alignment & Cross-Bundle Redundancy Check
+### PHASE 1: Input Alignment & Cross-Product/Service Redundancy Check
 
 1. List all selected products and services from the specified Value Proposition Canvases.
 2. For each product and servce, identify which pains and gains it addresses by cross-referencing the PR-to-Pain and GC-to-Gain connections in `VPC_Fit`.
-3. **Flag shared items**: Identify every pain or gain that appears in more than one bundle and mark it with a warning. These shared items must not be double-counted.
+3. **Flag shared items**: Identify every pain or gain that appears in more than one product or service and mark it with a warning. These shared items must not be double-counted.
 5. Present the full product&service-to-pain/gain mapping, including flagged shared items, to the user. Ask for confirmation or corrections before proceeding.
 
 ### PHASE 2: Alleviation & Achievement Factors
@@ -47,7 +47,7 @@ Calculate for each addressed item:
 - **Effective Pain Value ($VC_{C,i}$)**: `$VC_{C,i} = \omega_i \times VP_{pot,i}$`
 - **Effective Gain Value ($VG_{C,i}$)**: `$VG_{C,i} = \omega_i \times VG_{pot,i}$`
 
-### PHASE 3: Economic Value per Bundle
+### PHASE 3: Economic Value per Value & Service
 
 For each product and service, calculate:
 
@@ -59,11 +59,11 @@ For each product and service, calculate:
 
 For each pain or gain that appears in more than one product and service, determine a single **combined alleviation factor $\omega_i^{combined}$** (capped at 1.0) instead of summing the individual $\omega_i$ values. Use the appropriate rule based on how the mechanisms interact:
 
-- **Overlapping mechanisms** (bundles address the same root cause in similar ways): `$\omega_i^{combined} = \max(\omega_{i,k})$` across all bundles $k$ that address item $i$.
-- **Independent/complementary mechanisms** (bundles tackle different aspects of the same pain/gain): `$\omega_i^{combined} = 1 - \prod_k (1 - \omega_{i,k})$`, capped at 1.0.
+- **Overlapping mechanisms** (products or services address the same root cause in similar ways): `$\omega_i^{combined} = \max(\omega_{i,k})$` across all products or services $k$ that address item $i$.
+- **Independent/complementary mechanisms** (products or services tackle different aspects of the same pain/gain): `$\omega_i^{combined} = 1 - \prod_k (1 - \omega_{i,k})$`, capped at 1.0.
 
 For each flagged shared item, ask the user which rule applies and confirm the resulting $\omega_i^{combined}$. Then:
-- Assign the shared item (with $\omega_i^{combined}$) to one bundle as its **primary owner**.
+- Assign the shared item (with $\omega_i^{combined}$) to one product or service as its **primary owner**.
 - Remove that item's effective value from all other products and services that listed it.
 - The portfolio-level effective value for this item equals $\omega_i^{combined} \times VP_{pot,i}$ (counted exactly once).
 
@@ -83,15 +83,15 @@ Record each deduplication decision and the chosen rule in the report.
    - **CSV file** (`value_of_solving_pains.csv`) with columns:
      `Product/Service, Item ID, Type (Pain/Gain), Description, Agent, Frequency (f_i), Impact (v_i), Alleviation (omega_i), Potential Value (Annual), Effective Value (Annual)`
 
-   - **Bar chart** using a Python script (`value_of_solving_pains.py`) that reads the CSV and plots effective values grouped by bundle as a labeled bar chart, saving output as `value_of_solving_pains.png`. Run the script after writing it.
+   - **Bar chart** using a Python script (`value_of_solving_pains.py`) that reads the CSV and plots effective values grouped by product or service as a labeled bar chart, saving output as `value_of_solving_pains.png`. Run the script after writing it.
 
 ---
 
 ## 5. Output Formatting & Reference Example
 
-**Scenario**: Two smart service bundles evaluated for a machine operator.
+**Scenario**: Two smart services evaluated for a machine operator.
 
-### Per-Bundle Summary Table
+### Per-Product/Service Summary Table
 
 | Item # | Description | Agent | Freq. ($f_i$) | Impact ($v_i$) | Alleviation ($\omega_i$) | Effective Value (Annual) |
 |---|---|---|---|---|---|---|
@@ -101,19 +101,19 @@ Record each deduplication decision and the chosen rule in the report.
 | | *Same pain* | Provider | 6 | 1'000 EUR | 0.7 | 4'200 EUR |
 | **G1** | Predictable maintenance windows | Customer | 12 | 200 EUR | 0.8 | 1'920 EUR |
 
-### Cross-Bundle Comparison (Compare mode — bundles as alternatives)
+### Cross-Product/Service Comparison (Compare mode — products or services as alternatives)
 
-| Bundle | Total Customer $V_C$ | Total Provider Savings | Target $V_P$ | Total Economic $V_{Economic}$ |
+| Product/Service | Total Customer $V_C$ | Total Provider Savings | Target $V_P$ | Total Economic $V_{Economic}$ |
 |---|---|---|---|---|
-| Bundle 1: Predictive Asset Health | 7'780 EUR | 5'300 EUR | 3'890 EUR | 11'670 EUR |
-| Bundle 2: Digital Service Portal | 4'200 EUR | 1'800 EUR | 2'100 EUR | 6'300 EUR |
+| Product/Service 1: Predictive Asset Health | 7'780 EUR | 5'300 EUR | 3'890 EUR | 11'670 EUR |
+| Product/Service 2: Digital Service Portal | 4'200 EUR | 1'800 EUR | 2'100 EUR | 6'300 EUR |
 
-### Cross-Bundle Comparison (Combined mode — shared items deduplicated)
+### Cross-Product/Service Comparison (Combined mode — shared items deduplicated)
 
-| Bundle | Total Customer $V_C$ | Notes |
+| Product/Service | Total Customer $V_C$ | Notes |
 |---|---|---|
-| Bundle 1: Predictive Asset Health | 7'780 EUR | Owns P3 (combined $\omega$ = 0.85) |
-| Bundle 2: Digital Service Portal | 2'280 EUR | P3 removed (assigned to Bundle 1) |
+| Product/Service 1: Predictive Asset Health | 7'780 EUR | Owns P3 (combined $\omega$ = 0.85) |
+| Product/Service 2: Digital Service Portal | 2'280 EUR | P3 removed (assigned to Product/Service 1) |
 | **Portfolio Total** | **10'060 EUR** | P3 counted once at $\omega^{combined}$ = 0.85 |
 
 ## 6. Guardrails
@@ -126,19 +126,19 @@ Record each deduplication decision and the chosen rule in the report.
   - `VG_C,i = ω_i × VG_pot,i`
 - Ensure every `ω_i` is numeric and within `[0,1]`.
 - Annualize all values consistently before comparison or aggregation.
-- Bundle totals must exactly equal the sum of their item-level effective values.
+- Product/Service totals must exactly equal the sum of their item-level effective values.
 - Portfolio totals must reconcile exactly after deduplication.
 - Keep full precision internally; round only for presentation.
 
 ### 6.3 Overlap Calculation Correctness
-- Explicitly flag every pain or gain that appears in more than one bundle.
+- Explicitly flag every pain or gain that appears in more than one product/service.
 - Never double-count shared items at portfolio level.
 - For each shared item, apply exactly one rule:
   - overlapping mechanisms: `ω_i^combined = max(ω_i,k)`
   - complementary mechanisms: `ω_i^combined = 1 - ∏_k (1 - ω_i,k)`
 - Cap `ω_i^combined` at `1.0`.
-- Assign one primary owner bundle to each shared item.
-- Remove duplicate value from all non-owner bundles.
+- Assign one primary owner product/service to each shared item.
+- Remove duplicate value from all non-owner products/services.
 - Record the selected rule, combined factor, and ownership decision.
 
 ### 6.4 Strength of Reasoning
@@ -176,6 +176,7 @@ with open("value_of_solving_pains.csv", newline="", encoding="utf-8") as f:
         effective_values.append(float(row["Effective Value (Annual)"]))
         potential_values.append(float(row["Potential Value (Annual)"]))
 
+# Create a bar chart comparing potential and effective values for each product/service
 short_labels = [
     "P1\nSync Rework",
     "P2\nPitch Rejection",
